@@ -4,6 +4,7 @@ from django.contrib import admin
 from .models import Product
 
 
+@admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'description', 'price', 'sale_price', 'is_available']  # fields that are visible in the Product Admin
     search_fields = ['title', 'description', 'is_available']  # what can we search by
@@ -13,4 +14,4 @@ class ProductAdmin(admin.ModelAdmin):
     class Meta:
         model = Product
 
-admin.site.register(Product, ProductAdmin)
+# admin.site.register(Product, ProductAdmin) # @admin.register(Product) does the same

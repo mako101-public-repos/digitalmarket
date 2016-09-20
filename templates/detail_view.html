@@ -1,0 +1,7 @@
+{%  extends 'base.html' %}
+
+{% block content %}
+    {{ block.super }}   {# we are importing the content #}
+                        {# from the parent's block! #}
+    <h1>{{ greeting }}</h1>
+{% endblock %}

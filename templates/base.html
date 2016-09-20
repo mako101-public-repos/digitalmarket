@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<style>
+    h1 {
+        color: red;
+    }
+
+    {% block style %}{% endblock %} {# we add an empty style block so that we can adjust it as needed later #}
+</style>
+<body>
+    {% block content %}
+        <p>Im from da base</p>
+    {% endblock content %}  {# the 'content' part is optional #}
+</body>
+</html>
+
