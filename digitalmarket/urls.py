@@ -21,5 +21,8 @@ from products import views as product_views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^list/$', product_views.list_view, name='list_view'),
+    url(r'^create/$', product_views.create_view, name='create_view'),
+    url(r'^detail/(?P<object_id>\d+)/$', product_views.detail_view, name='detail_view'),
+    url(r'^detail/(?P<slug>[\w-]+)/$', product_views.detail_slug_view, name='detail_slug_view'),
     url(r'^detail/$', product_views.detail_view, name='detail_view')
 ]
