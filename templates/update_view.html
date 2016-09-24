@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{#  Here we harcode the variables to be passed to the product_form  #}
+{% include 'product_form.html' with form_title='Update Product Info' submit_btn='Save Changes' %}
+
+{% endblock %}

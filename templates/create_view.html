@@ -2,12 +2,9 @@
 
 {% block content %}
 
-    <form method="POST" action="">
+    {#  here we are calling the form template without passing any varialbles #}
+    {#  because they are aready passed form the create_view() function  #}
+    {#  as long as the variable names match what the form expects this will work!  #}
+    {% include 'product_form.html' %}
 
-        <h1>New Product Form</h1>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Create Product">
-        <input type="reset" value="Clear the form">
-    </form>
 {% endblock %}
