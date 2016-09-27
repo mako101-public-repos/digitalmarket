@@ -20,8 +20,9 @@ from products import views as product_views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^list/$', product_views.list_view, name='list_view'),
+    # url(r'^list/$', product_views.list_view, name='list_view'),
     url(r'^products/$', product_views.ProductListView.as_view(), name='product_list_view'),
+    url(r'^products/add/$', product_views.ProductCreateView.as_view(), name='product_add_view'),
     url(r'^products/(?P<pk>\d+)/$', product_views.ProductDetailView.as_view(), name='product_detail_view'),
     # the slug url should be below the PK one, to avoid nor found errors
     # because the slug regex will match the PK as well
@@ -30,5 +31,5 @@ urlpatterns = [
     url(r'^detail/(?P<object_id>\d+)/$', product_views.detail_view, name='detail_view'),
     url(r'^detail/(?P<object_id>\d+)/edit/$', product_views.update_view, name='update_view'),
     url(r'^detail/(?P<slug>[\w-]+)/$', product_views.detail_slug_view, name='detail_slug_view'),
-    url(r'^detail/$', product_views.detail_view, name='detail_view')
+    # url(r'^detail/$', product_views.detail_view, name='detail_view')
 ]
