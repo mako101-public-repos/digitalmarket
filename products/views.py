@@ -1,9 +1,67 @@
 from django.shortcuts import render, get_object_or_404
+
+from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
+
 from .models import Product
 from .forms import ProductAddForm, ProductModelForm
 
 
-# Create your views here.
+# Class-Based Views :-)
+class ProductDetailView(DetailView):
+    model = Product
+
+    # we will overwrite the get_object() method to be able to handle non-unique slugs
+    def get_object(self, queryset=None):
+        # this will print the keyword arguments the method is using to retrieve data
+        print(self.kwargs)
+        # This will equal to None if slug was not used, ie. a PK was used
+        slug = self.kwargs.get('slug')
+        ModelClass = self.model
+        # if the slug is passed:
+        if slug is not None:
+            try:
+                obj = get_object_or_404(ModelClass, slug=slug)
+            except ModelClass.MultipleObjectsReturned:
+                # Return the first match if multiples are found
+
+                obj = ModelClass.objects.filter(slug=slug).order_by('title').first()
+        # Default method for when querying with PK
+        else:
+            obj = super(ProductDetailView, self).get_object()
+        return obj
+
+    #  can overwite class methods here as needed
+    def get_context_data(self, **kwargs):
+        context = super(ProductDetailView, self).get_context_data()
+        print('Using detail view!\n')
+        print(context)
+        return context
+        # context['queryset'] = self.get_queryset()
+        # return context
+
+class ProductListView(ListView):
+    model = Product
+
+    # We will set things up to work with the default auto-generated template name:
+    # product_list.html
+    # template_name = 'list_view.html' - not needed anymore
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductListView, self).get_context_data()
+        print(context)
+        context['queryset'] = self.get_queryset()
+        return context
+
+    # narrow the set of results returned
+    def get_queryset(self):
+        qs = super(ProductListView, self).get_queryset()
+        qs = qs.filter(price__lte=9.99)
+        return qs
+
+
+
+# Function-based views
 def detail_view(request, object_id=None):
     # this will be visible in the console/logs!
     print("The request is {}.\nThe user is {}.\nAuthenticated: {}."
@@ -91,6 +149,9 @@ def detail_slug_view(request, slug=None):
 
 
 def list_view(request):
+    queryset = Product.objects.all()
     template = 'list_view.html'
-    context = {}
+    context = {
+        'queryset': queryset
+    }
     return render(request, template, context)

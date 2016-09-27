@@ -1,0 +1,16 @@
+{%  extends 'base.html' %}
+
+{% block content %}
+    {{ block.super }}   {# we are importing the content #}
+                        {# from the parent's block! #}
+    <h1>{{ greeting }}</h1>
+    <h4>Here are the product details</h4>
+
+    {#  object is a variable for DetailVIew class  #}
+    <h3>Product: {{ object }}</h3>
+    <h3>Title: {{ object.title }}</h3>
+    <i>{{ object.description }}</i>
+    <p>Price: {{ object.price }}</p>
+    <p>Sale Price: {{ object.sale_price }}</p>
+    <p>Is available: {{ object.is_available }}</p>
+{% endblock %}
