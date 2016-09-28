@@ -6,7 +6,7 @@ from django.utils.text import slugify
 # Create your models here.
 class Product(m.Model):
     title = m.CharField(max_length=30)
-    slug = m.SlugField(blank=True)  # unique=True
+    slug = m.SlugField(blank=True, unique=True)
     description = m.TextField(blank=True)
     price = m.DecimalField(max_digits=100, decimal_places=2, default=9.99)
     sale_price = m.DecimalField(max_digits=100, decimal_places=2, default=6.99, null=True, blank=True)
@@ -16,10 +16,37 @@ class Product(m.Model):
         return self.title
 
 
+def create_unique_slug(instance, new_slug=None):
+    slug = slugify(instance.title)
+    if new_slug is not None:
+        slug = new_slug
+    slug_exists = Product.objects.filter(slug=slug).exists()
+    
+    if slug_exists:
+        # Split slug on dashes and check if the last part is a digit
+        split_slug = slug.split('-')
+        last = split_slug[-1]
+
+        if last.isdigit():
+            # If yes, we will increment the number and update the slug with it
+            last_index = (split_slug.index(last))
+            split_slug[last_index] = int(last) + 1
+            split_slug = [str(i) for i in split_slug]
+            new_slug = '-'.join(split_slug)
+        else:
+            # If not, we just add '-1' at the end of the slug
+            # it can be incremented if another product with the same title is added :)
+            new_slug = "{}-{}".format(slug, 1)
+
+        # Rerun the function with the new slug
+        slug = create_unique_slug(instance, new_slug)
+    return slug
+
+
 # this can be used to manipulate data before saving it to DB!
 def product_pre_save_receiver(sender, instance, *args, **kwargs):
     if not instance.slug:
-        instance.slug = slugify(instance.title)
+        instance.slug = create_unique_slug(instance)
         print('Added slug {} to instance {}'.format(instance.slug, instance))
 
 pre_save.connect(product_pre_save_receiver, sender=Product)
