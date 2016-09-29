@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import Http404
 
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -14,12 +15,21 @@ class ProductCreateView(FormVarsMixin, CreateView):
     model = Product
     form_class = ProductModelForm
     template_name = 'product_form.html'
-    success_url = '/products/add'  # url to redirect to on successful submission
+    success_url = '/products'  # url to redirect to on successful submission
 
     # these come from FormVarsMixin
     form_title = 'New Product Form'
     submit_btn = 'Create Product'
     reset_btn = 'Clear form'
+
+    def form_valid(self, form):
+        user = self.request.user
+        form.instance.owner = user
+        valid_data = super(ProductCreateView, self).form_valid(form)
+        # By this point the product has already been saved to the DB
+        # so we can add ManyToMany values, e.g add user to managers
+        form.instance.managers.add(user)
+        return valid_data
 
     # This customization has been moved to FormVarsMixin :)
     # need to customise this to pass form variables
@@ -40,6 +50,14 @@ class ProductEditView(FormVarsMixin, MultiSlugMixin, UpdateView):
     form_title = 'Update Product'
     submit_btn = 'Save Changes'
 
+    def get_object(self, *args, **kwargs):
+        user = self.request.user
+        obj = super(ProductEditView, self).get_object(*args, **kwargs)
+        if obj.owner == user or user in obj.managers.all():
+            return obj
+        else:
+            raise Http404('You are not authorised to edit this product!')
+
 
 class ProductDetailView(MultiSlugMixin, DetailView):
     model = Product
@@ -48,11 +66,19 @@ class ProductDetailView(MultiSlugMixin, DetailView):
     # can overwrite class methods here as needed
     def get_context_data(self, **kwargs):
         context = super(ProductDetailView, self).get_context_data()
+        user = self.request.user
+
+        # Pass the variable to the template to show the edit button for owners and managers
+        obj = super(ProductDetailView, self).get_object()
+        if obj.owner == user or user in obj.managers.all():
+            context['allowed_to_edit'] = True
+
         print('Using detail view!\n')
         print(context)
         return context
         # context['queryset'] = self.get_queryset()
         # return context
+
 
 class ProductListView(ListView):
     model = Product

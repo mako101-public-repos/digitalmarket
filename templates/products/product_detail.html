@@ -13,4 +13,12 @@
     <p>Price: {{ object.price }}</p>
     <p>Sale Price: {{ object.sale_price }}</p>
     <p>Is available: {{ object.is_available }}</p>
+
+    {# Show the edit option for product owners and managers  #}
+    {% if allowed_to_edit %}
+        <form action="{% url 'product_edit_view' object.id %}">
+            <input type="submit" value="Edit Product" />
+        </form>
+    {% endif %}
+{#    <p>{{ request.user }}, {{ object.owner }}, {{ object.managers.all }}</p>#}
 {% endblock %}
