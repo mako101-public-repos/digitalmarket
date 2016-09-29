@@ -24,3 +24,20 @@ class MultiSlugMixin(object):
         else:
             obj = super(MultiSlugMixin, self).get_object()
         return obj
+
+
+# This mixin class customises get_context_data() in order to pass variables to the HTML form
+class FormVarsMixin(object):
+
+    form_title = None
+    submit_btn = None
+    reset_btn = None
+
+    def get_context_data(self, **kwargs):
+        context = super(FormVarsMixin, self).get_context_data()
+        # Here are the form variables
+        context['form_title'] = self.form_title
+        context['submit_btn'] = self.submit_btn
+        context['reset_btn'] = self.reset_btn
+        return context
+

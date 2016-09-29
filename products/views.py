@@ -2,8 +2,7 @@ from django.shortcuts import render
 
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 
 from .models import Product
 from .forms import ProductAddForm, ProductModelForm
@@ -11,35 +10,35 @@ from digitalmarket.mixins import *
 
 
 ########################################## Class-Based Views :-) #########################################
-class ProductCreateView(CreateView):
+class ProductCreateView(FormVarsMixin, CreateView):
     model = Product
     form_class = ProductModelForm
     template_name = 'product_form.html'
     success_url = '/products/add'  # url to redirect to on successful submission
 
+    # these come from FormVarsMixin
+    form_title = 'New Product Form'
+    submit_btn = 'Create Product'
+    reset_btn = 'Clear form'
+
+    # This customization has been moved to FormVarsMixin :)
     # need to customise this to pass form variables
-    def get_context_data(self, **kwargs):
-        context = super(ProductCreateView, self).get_context_data()
-        # Here are the form variables
-        context['form_title'] = 'New Product Form'
-        context['submit_btn'] = 'Create Product'
-        context['reset_btn'] = 'Clear form'
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super(ProductCreateView, self).get_context_data()
+    #     # Here are the form variables
+    #     context['form_title'] = 'New Product Form'
+    #     context['submit_btn'] = 'Create Product'
+    #     context['reset_btn'] = 'Clear form'
+    #     return context
 
 
-class ProductEditView(MultiSlugMixin, UpdateView):
+class ProductEditView(FormVarsMixin, MultiSlugMixin, UpdateView):
     model = Product
     form_class = ProductModelForm
     template_name = 'product_form.html'
     success_url = '/products'  # url to redirect to on successful submission
-
-    # need to customise this to pass form variables
-    def get_context_data(self, **kwargs):
-        context = super(ProductEditView, self).get_context_data()
-        # Here are the form variables
-        context['form_title'] = 'Update Product'
-        context['submit_btn'] = 'Save Changes'
-        return context
+    form_title = 'Update Product'
+    submit_btn = 'Save Changes'
 
 
 class ProductDetailView(MultiSlugMixin, DetailView):

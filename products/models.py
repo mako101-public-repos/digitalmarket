@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models as m
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
@@ -5,6 +6,15 @@ from django.utils.text import slugify
 
 # Create your models here.
 class Product(m.Model):
+
+    # One-to-one mapping example
+    # owner = m.OneToOneField(User)
+
+    # Many-to-one mapping
+    owner = m.ForeignKey(User, related_name='product_owner')
+    # Many-to-many mapping
+    managers = m.ManyToManyField(User, related_name='product_managers', blank=True)
+
     title = m.CharField(max_length=30)
     slug = m.SlugField(blank=True, unique=True)
     description = m.TextField(blank=True)
@@ -21,7 +31,7 @@ def create_unique_slug(instance, new_slug=None):
     if new_slug is not None:
         slug = new_slug
     slug_exists = Product.objects.filter(slug=slug).exists()
-    
+
     if slug_exists:
         # Split slug on dashes and check if the last part is a digit
         split_slug = slug.split('-')
