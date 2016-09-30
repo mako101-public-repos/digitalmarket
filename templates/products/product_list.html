@@ -6,7 +6,7 @@
 <ul>
     {#  object_list is a  built-in variable for ListView class #}
     {% for instance in object_list %}
-        <li> {{ instance }}: {{ instance.description }} - ${{ instance.price }} <a href="{% url 'product_detail_view' instance.id %}">Details</a></li>
+        <li> {{ instance }}: {{ instance.description }} - ${{ instance.price }} <a href="{% url 'products:detail' instance.id %}">Details</a></li>
         <br></li>
     {% empty %}
         <li>No Products have been registered yet</li>
@@ -15,7 +15,7 @@
 
 {# Allow authenticated users to create new products   #}
 {% if request.user.is_authenticated %}
-    <form action="{% url 'product_add_view' %}">
+    <form action="{% url 'products:add' %}">
         <input type="submit" value="Add a New Product" />
     </form>
 {% endif %}

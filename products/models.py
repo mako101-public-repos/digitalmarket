@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models as m
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
+from django.core.urlresolvers import reverse
 
 
 # Create your models here.
@@ -24,6 +25,13 @@ class Product(m.Model):
 
     def __str__(self):
         return self.title
+
+    # the URL to redirect to upon successful creation of the model instance
+    # This will be used for both create and edit views unless overwritten
+    def get_absolute_url(self):
+        view_name = 'products:detail_slug'
+        print('The absolute URL is:', reverse(view_name, kwargs={'slug': self.slug}))
+        return reverse(view_name, kwargs={'slug': self.slug})
 
 
 def create_unique_slug(instance, new_slug=None):

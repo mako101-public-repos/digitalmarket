@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import Http404
+from django.core.urlresolvers import reverse
 
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -7,15 +7,17 @@ from django.views.generic.edit import CreateView, UpdateView
 
 from .models import Product
 from .forms import ProductAddForm, ProductModelForm
+
 from digitalmarket.mixins import *
+from .mixins import *
 
 
 ########################################## Class-Based Views :-) #########################################
-class ProductCreateView(FormVarsMixin, CreateView):
+class ProductCreateView(LoginRequiredMixin, FormVarsMixin, CreateView):
     model = Product
     form_class = ProductModelForm
     template_name = 'product_form.html'
-    success_url = '/products'  # url to redirect to on successful submission
+    # success_url = '/products'  # url to redirect to on successful submission
 
     # these come from FormVarsMixin
     form_title = 'New Product Form'
@@ -25,60 +27,32 @@ class ProductCreateView(FormVarsMixin, CreateView):
     def form_valid(self, form):
         user = self.request.user
         form.instance.owner = user
-        valid_data = super(ProductCreateView, self).form_valid(form)
+        valid_data = super(ProductCreateView, self).form_valid(form)  # form_valid() saves the instance
         # By this point the product has already been saved to the DB
         # so we can add ManyToMany values, e.g add user to managers
         form.instance.managers.add(user)
         return valid_data
 
-    # This customization has been moved to FormVarsMixin :)
-    # need to customise this to pass form variables
-    # def get_context_data(self, **kwargs):
-    #     context = super(ProductCreateView, self).get_context_data()
-    #     # Here are the form variables
-    #     context['form_title'] = 'New Product Form'
-    #     context['submit_btn'] = 'Create Product'
-    #     context['reset_btn'] = 'Clear form'
-    #     return context
+    # We only need to specify this if get_absolute_url() is not defined OR we want to overwrite it
+    def get_success_url(self):
+        return reverse('products:list')
 
 
-class ProductEditView(FormVarsMixin, MultiSlugMixin, UpdateView):
+class ProductEditView(ProductManagerEditMixin, FormVarsMixin, MultiSlugMixin, UpdateView):
     model = Product
     form_class = ProductModelForm
     template_name = 'product_form.html'
-    success_url = '/products'  # url to redirect to on successful submission
+    # success_url = '/products'  # url to redirect to on successful submission
     form_title = 'Update Product'
     submit_btn = 'Save Changes'
 
-    def get_object(self, *args, **kwargs):
-        user = self.request.user
-        obj = super(ProductEditView, self).get_object(*args, **kwargs)
-        if obj.owner == user or user in obj.managers.all():
-            return obj
-        else:
-            raise Http404('You are not authorised to edit this product!')
+    # The rest is handled by ProductManagerEditMixin
 
 
-class ProductDetailView(MultiSlugMixin, DetailView):
+class ProductDetailView(ProductManagerDetailMixin, MultiSlugMixin, DetailView):
     model = Product
     # using product_detail.html template
-
-    # can overwrite class methods here as needed
-    def get_context_data(self, **kwargs):
-        context = super(ProductDetailView, self).get_context_data()
-        user = self.request.user
-
-        # Pass the variable to the template to show the edit button for owners and managers
-        obj = super(ProductDetailView, self).get_object()
-        if obj.owner == user or user in obj.managers.all():
-            context['allowed_to_edit'] = True
-
-        print('Using detail view!\n')
-        print(context)
-        return context
-        # context['queryset'] = self.get_queryset()
-        # return context
-
+    # Everything else managed by ProductManagerDetailMixin
 
 class ProductListView(ListView):
     model = Product
@@ -87,18 +61,17 @@ class ProductListView(ListView):
     # product_list.html
     # template_name = 'list_view.html' - not needed anymore
 
-    def get_context_data(self, **kwargs):
-        context = super(ProductListView, self).get_context_data()
-        print(context)
-        context['queryset'] = self.get_queryset()
-        return context
-
     # narrow down the set of results returned
     def get_queryset(self):
         qs = super(ProductListView, self).get_queryset()
         qs = qs.filter(price__lte=9.99)
         return qs
 
+    def get_context_data(self, **kwargs):
+        context = super(ProductListView, self).get_context_data()
+        print(context)
+        context['queryset'] = self.get_queryset()
+        return context
 
 ############################# Function-based views ##################################################
 def detail_view(request, object_id=None):

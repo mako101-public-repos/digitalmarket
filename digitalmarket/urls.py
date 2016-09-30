@@ -1,37 +1,15 @@
-"""digitalmarket URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.10/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
-"""
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
-from products import views as product_views
-
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^products/', include('products.urls', namespace='products'))
+
+    ####################### Old function-based views, for reference #################################
     # url(r'^list/$', product_views.list_view, name='list_view'),
-    url(r'^products/$', product_views.ProductListView.as_view(), name='product_list_view'),
-    url(r'^products/add/$', product_views.ProductCreateView.as_view(), name='product_add_view'),
-    url(r'^products/(?P<pk>\d+)/edit/$', product_views.ProductEditView.as_view(), name='product_edit_view'),
-    url(r'^products/(?P<slug>[\w-]+)/edit/$', product_views.ProductEditView.as_view(), name='product_edit_slug_view'),
-    url(r'^products/(?P<pk>\d+)/$', product_views.ProductDetailView.as_view(), name='product_detail_view'),
-    # the slug url should be below the PK one, to avoid nor found errors
-    # because the slug regex will match the PK as well
-    url(r'^products/(?P<slug>[\w-]+)/$', product_views.ProductDetailView.as_view(), name='product_detail_slug_view'),
     # url(r'^create/$', product_views.create_view, name='create_view'),
-    url(r'^detail/(?P<object_id>\d+)/$', product_views.detail_view, name='detail_view'),
-    url(r'^detail/(?P<object_id>\d+)/edit/$', product_views.update_view, name='update_view'),
-    url(r'^detail/(?P<slug>[\w-]+)/$', product_views.detail_slug_view, name='detail_slug_view'),
+    # url(r'^detail/(?P<object_id>\d+)/$', product_views.detail_view, name='detail_view'),
+    # url(r'^detail/(?P<object_id>\d+)/edit/$', product_views.update_view, name='update_view'),
+    # url(r'^detail/(?P<slug>[\w-]+)/$', product_views.detail_slug_view, name='detail_slug_view'),
     # url(r'^detail/$', product_views.detail_view, name='detail_view')
 ]
