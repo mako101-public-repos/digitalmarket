@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, FileResponse
 
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -10,6 +11,7 @@ from .forms import ProductAddForm, ProductModelForm
 
 from digitalmarket.mixins import *
 from .mixins import *
+from digitalmarket import settings  # need this to get media files locations
 
 
 ########################################## Class-Based Views :-) #########################################
@@ -54,6 +56,32 @@ class ProductDetailView(ProductManagerDetailMixin, MultiSlugMixin, DetailView):
     # using product_detail.html template
     # Everything else managed by ProductManagerDetailMixin
 
+
+class ProductDownloadView(ProductManagerDetailMixin, MultiSlugMixin, DetailView):
+    model = Product
+
+    # https://docs.djangoproject.com/en/1.10/ref/request-response/#fileresponse-objects
+    # https://docs.python.org/3/library/functions.html#open
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        # response = HttpResponse('{}'.format(obj))
+        file_path = str(settings.MEDIA_URL + obj.media.name)
+        print(file_path)
+
+        # NONE OF THIS WORKS OFF S3, FOR LOCAL FILES ONLY!!!
+        # wrapper is for handling large files efficiently, i.e without tying up lots of memory
+        # file_wrapper = FileResponse(open(file_path, 'rb'))
+        # file_wrapper = FileResponse(open('https://s3.amazonaws.com/digital-market-1/media/43/Horarios_Malaga-Marbella_est..pdf', 'rb'))
+
+        response = HttpResponse(content_type='application/force-download')
+        response['Content-Disposition'] = 'attachment; filename={}'.format(obj.media.name)
+        response['X-SendFile'] = str(obj.media.name)
+        # print(obj.media.name)
+        print(response)
+        return response
+
+
 class ProductListView(ListView):
     model = Product
 
@@ -62,10 +90,10 @@ class ProductListView(ListView):
     # template_name = 'list_view.html' - not needed anymore
 
     # narrow down the set of results returned
-    def get_queryset(self):
-        qs = super(ProductListView, self).get_queryset()
-        qs = qs.filter(price__lte=9.99)
-        return qs
+    # def get_queryset(self):
+    #     qs = super(ProductListView, self).get_queryset()
+    #     qs = qs.filter(price__lte=9.99)
+    #     return qs
 
     def get_context_data(self, **kwargs):
         context = super(ProductListView, self).get_context_data()

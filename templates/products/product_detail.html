@@ -14,6 +14,14 @@
     <p>Sale Price: {{ object.sale_price }}</p>
     <p>Is available: {{ object.is_available }}</p>
 
+    {% if object.media %}
+        {#  object.get_download here is the same as {% url 'products:download' object.id %} #}
+        <form action="{{ object.get_download }}">
+            <input type="submit" value="Download Media" />
+        </form>
+        <br>
+    {% endif %}
+
     {# Show the edit option for product owners and managers  #}
     {% if allowed_to_edit %}
         <form action="{% url 'products:edit' object.id %}">

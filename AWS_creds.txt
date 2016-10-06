@@ -1,0 +1,7 @@
+User: dm
+
+Access Key ID: AKIAJYB66G2GF7UCWPXQ
+
+Secret Access Key: 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
+
+User ARN: arn:aws:iam::868699798488:user/dm

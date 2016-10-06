@@ -3,9 +3,13 @@ from django.db import models as m
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
+from django.core.files.storage import FileSystemStorage
 
 
-# Create your models here.
+def media_location(instance, filename):
+    return '{}/{}'.format(instance.id, filename)
+
+
 class Product(m.Model):
 
     # One-to-one mapping example
@@ -19,6 +23,7 @@ class Product(m.Model):
     title = m.CharField(max_length=30)
     slug = m.SlugField(blank=True, unique=True)
     description = m.TextField(blank=True)
+    media = m.FileField(blank=True, null=True, upload_to=media_location)
     price = m.DecimalField(max_digits=100, decimal_places=2, default=9.99)
     sale_price = m.DecimalField(max_digits=100, decimal_places=2, default=6.99, null=True, blank=True)
     is_available = m.BooleanField()  # is the product available to purchase?
@@ -32,6 +37,12 @@ class Product(m.Model):
         view_name = 'products:detail_slug'
         print('The absolute URL is:', reverse(view_name, kwargs={'slug': self.slug}))
         return reverse(view_name, kwargs={'slug': self.slug})
+
+    #  This will provide a download link for the product
+    def get_download(self):
+        view_name = 'products:download'
+        url = reverse(view_name, kwargs={'pk': self.id})
+        return url
 
 
 def create_unique_slug(instance, new_slug=None):

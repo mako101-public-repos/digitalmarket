@@ -1,5 +1,8 @@
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -13,3 +16,7 @@ urlpatterns = [
     # url(r'^detail/(?P<slug>[\w-]+)/$', product_views.detail_slug_view, name='detail_slug_view'),
     # url(r'^detail/$', product_views.detail_view, name='detail_view')
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL)
+    urlpatterns += static(settings.MEDIA_URL)

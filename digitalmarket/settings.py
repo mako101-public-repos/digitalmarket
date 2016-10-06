@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'products',
+    'storages',
+    'digitalmarket'
 ]
 
 MIDDLEWARE = [
@@ -116,7 +118,60 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, Images) -> MOVED TO S3! See below
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
+# STATIC_URL = '/static/'
 
-STATIC_URL = '/static/'
+# These would be manage by the development team
+# These will be collected and sent to the main staticfile storage!
+# i.e. S3 bucket in this case!!!
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+# Team does NOT manage these, i.e third party stuff like CDN / AWS S3 etc
+# STATIC_ROOT = 'collect files here'
+
+# AWS Settings
+# https://www.caktusgroup.com/blog/2014/11/10/Using-Amazon-S3-to-store-your-Django-sites-static-and-media-files/
+
+# Frankfurt/Ireland buckets don't work too well with boto at the moment, using US one!
+# https://github.com/boto/boto/issues/2916
+
+AWS_STORAGE_BUCKET_NAME = 'digital-market-1'
+AWS_ACCESS_KEY_ID = 'AKIAJYB66G2GF7UCWPXQ'
+AWS_SECRET_ACCESS_KEY = '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'
+
+# Allow caching of the files for a long time
+AWS_HEADERS = {  # see http://developer.yahoo.com/performance/rules.html#expires
+        'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
+        'Cache-Control': 'max-age=94608000',
+    }
+
+# Tell django-storages that when coming up with the URL for an item in S3 storage, keep
+# it simple - just use this domain plus the path. (If this isn't set, things get complicated).
+# This controls how the `static` template tag from `staticfiles` gets expanded, if you're using it.
+# We also use it in the next setting.
+# AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)
+
+# This is used by the `static` template tag from `static`, if you're using that. Or if anything else
+# refers directly to STATIC_URL. So it's safest to always set it.
+# STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+STATICFILES_LOCATION = 'static'
+STATIC_URL = "https://{}/{}/".format(AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
+
+# Custom storage class with a different 'location' variable
+STATICFILES_STORAGE = 'digitalmarket.s3_storage.StaticStorage'
+
+
+# Same with the media files
+
+MEDIAFILES_LOCATION = 'media'
+MEDIA_ROOT = '/{}'.format(MEDIAFILES_LOCATION)
+MEDIA_URL = "https://{}/{}/".format(AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
+DEFAULT_FILE_STORAGE = 'digitalmarket.s3_storage.MediaStorage'
+
+# Tell the staticfiles app to use S3Boto storage when writing the collected static files (when
+# you run `collectstatic`).
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
