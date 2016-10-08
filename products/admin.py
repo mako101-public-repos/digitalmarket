@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Product
+from .models import *
 
 
 @admin.register(Product)
@@ -21,3 +21,5 @@ class ProductAdmin(admin.ModelAdmin):
         model = Product
 
 # admin.site.register(Product, ProductAdmin) # @admin.register(Product) does the same
+
+admin.site.register(MyProducts)

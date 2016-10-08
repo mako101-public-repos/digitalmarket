@@ -6,7 +6,7 @@
     <h1>{{ greeting }}</h1>
     <h4>Here are the product details</h4>
 
-    {#  object is a variable for DetailVIew class  #}
+    {#  object is a variable for DetailView class  #}
     <h3>Product: {{ object }}</h3>
     <h3>Title: {{ object.title }}</h3>
     <i>{{ object.description }}</i>
@@ -14,7 +14,14 @@
     <p>Sale Price: {{ object.sale_price }}</p>
     <p>Is available: {{ object.is_available }}</p>
 
-    {% if object.media %}
+
+    {# Media has to exist #}
+    {# User has to be authenticated #}
+    {# And has to have this product in his products to see the download/preview links #}
+    {% if object.media and request.user.is_authenticated and object in request.user.myproducts.products.all %}
+
+        <p><a href="{{ object.get_download }}?preview=True">Preview (if possible)</a></p>
+
         {#  object.get_download here is the same as {% url 'products:download' object.id %} #}
         <form action="{{ object.get_download }}">
             <input type="submit" value="Download Media" />

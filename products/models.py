@@ -87,5 +87,25 @@ def product_post_save_receiver(sender, instance, *args, **kwargs):
 
 
 post_save.connect(product_post_save_receiver, sender=Product)
-
 # There are also actions available for delete and init
+
+
+class MyProducts(m.Model):
+    user = m.OneToOneField(User)
+    products = m.ManyToManyField(Product, blank=True)
+
+    def __str__(self):
+        # Get titles of all products the user owns
+        product_titles = [product.title for product in self.products.all()]
+
+        # Make a string out of them
+        product_list = product_titles[0]
+        for product in product_titles[1:]:
+            product_list = product_list + ', ' + product
+        product_set = '{} - {}'.format(str(self.user).capitalize(), product_list)
+        return product_set
+
+    # This allows to change the names used in Admin section :)
+    class Meta:
+        verbose_name = 'My Products'
+        verbose_name_plural = 'My Products'

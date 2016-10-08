@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, FileResponse
+from mimetypes import guess_type
 
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -60,26 +61,38 @@ class ProductDetailView(ProductManagerDetailMixin, MultiSlugMixin, DetailView):
 class ProductDownloadView(ProductManagerDetailMixin, MultiSlugMixin, DetailView):
     model = Product
 
-    # https://docs.djangoproject.com/en/1.10/ref/request-response/#fileresponse-objects
-    # https://docs.python.org/3/library/functions.html#open
-
     def get(self, request, *args, **kwargs):
         obj = self.get_object()
-        # response = HttpResponse('{}'.format(obj))
-        file_path = str(settings.MEDIA_URL + obj.media.name)
-        print(file_path)
 
+        # https://docs.djangoproject.com/en/1.10/ref/request-response/#fileresponse-objects
+        # https://docs.python.org/3/library/functions.html#open
         # NONE OF THIS WORKS OFF S3, FOR LOCAL FILES ONLY!!!
+        # file_path = str(settings.MEDIA_URL + obj.media.name)
+        # print(file_path)
         # wrapper is for handling large files efficiently, i.e without tying up lots of memory
         # file_wrapper = FileResponse(open(file_path, 'rb'))
-        # file_wrapper = FileResponse(open('https://s3.amazonaws.com/digital-market-1/media/43/Horarios_Malaga-Marbella_est..pdf', 'rb'))
 
-        response = HttpResponse(content_type='application/force-download')
-        response['Content-Disposition'] = 'attachment; filename={}'.format(obj.media.name)
-        response['X-SendFile'] = str(obj.media.name)
-        # print(obj.media.name)
-        print(response)
-        return response
+        # Only allow users with the right permissions to download stuff
+        if obj in request.user.myproducts.products.all():
+
+            # Try to guess the MIME type of the download or just force download if unknown
+            guessed_type = guess_type(obj.media.name)
+            mimetype = 'application/force-download'
+            if guessed_type:
+                mimetype = guessed_type
+            response = HttpResponse(obj.media, content_type=mimetype)
+
+            # if the request contains 'preview', don't download the file, attempt preview
+            # The product details page will have a separate link for this
+            if 'preview' not in request.GET:
+                response['Content-Disposition'] = 'attachment; filename={}'.format(obj.media.name)
+
+            response['X-SendFile'] = str(obj.media.name)
+
+            print(response)
+            return response
+        else:
+            return HttpResponse('You are not authorized to access this download', status=403)
 
 
 class ProductListView(ListView):
