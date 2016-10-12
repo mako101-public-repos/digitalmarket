@@ -4,8 +4,19 @@ from django.contrib import admin
 from .models import *
 
 
+# inlines allow for editing related models on the same page as a parent model
+# can be TabularInline (horizontal) or StackedInline (vertical)
+# https://docs.djangoproject.com/en/1.10/ref/contrib/admin/#django.contrib.admin.TabularInline
+class ThumbnailInline(admin.TabularInline):
+    # amount of lines for filling
+    extra = 0
+    model = Thumbnail
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    inlines = [ThumbnailInline]
+    # the first item is what the product list is ordered by
     list_display = ['slug', '__str__', 'id', 'description', 'owner',
                     'price', 'sale_price', 'is_available']  # fields that are visible in the Product Admin
 
