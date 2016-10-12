@@ -6,7 +6,7 @@ from .models import *
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'id', 'description', 'owner',
+    list_display = ['slug', '__str__', 'id', 'description', 'owner',
                     'price', 'sale_price', 'is_available']  # fields that are visible in the Product Admin
 
     # to search for foreign keys, you have to use [model_field__foreign_key_field] notation
@@ -23,3 +23,4 @@ class ProductAdmin(admin.ModelAdmin):
 # admin.site.register(Product, ProductAdmin) # @admin.register(Product) does the same
 
 admin.site.register(MyProducts)
+admin.site.register(Thumbnail)

@@ -102,43 +102,6 @@ class ProductListView(SimpleSearchMixin, ListView):
     # product_list.html
     # template_name = 'list_view.html' - not needed anymore
 
-    # def get_queryset(self, *args, **kwargs):
-    #     qs = super(ProductListView, self).get_queryset(**kwargs)
-    #     print(qs)
-    #     print(self.request.GET)
-    #
-    #     # this will look for '?q=<search pattern>
-    #     #  and match it with titles or descriptions
-    #     # '|' is 'OR'; '&' is 'AND'
-    #
-    #     # title only
-    #     title = self.request.GET.get('t')
-    #     # title and description
-    #     title_desc = self.request.GET.get('td')
-    #     price_from = self.request.GET.get('pf')
-    #     price_to = self.request.GET.get('pt')
-    #
-    #     field = self.request.GET.get('f')
-    #
-    #
-    #     value = self.request.GET.get('val')
-    #     print(field)
-    #     print(value)
-    #     if field == 'title':
-    #     # if title:
-    #         # print(search_query)
-    #         qs = qs.filter(title__icontains=value)
-    #     elif title_desc:
-    #         qs = qs.filter(
-    #             Q(title__icontains=title_desc) |
-    #             Q(description__icontains=title_desc))
-    #     # search by price
-    #     elif price_from:
-    #         qs = qs.filter(price__gte=price_from)
-    #     elif price_to:
-    #         qs = qs.filter(price__lte=price_to)
-    #     return qs.order_by('title')
-
     # def get_context_data(self, **kwargs):
     #     context = super(ProductListView, self).get_context_data()
     #     print(context)

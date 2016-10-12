@@ -52,26 +52,33 @@ class SimpleSearchMixin(object):
         price_from = self.request.GET.get('pf')
         price_to = self.request.GET.get('pt')
 
-        try:
-            # title and description
-            if title_desc:
-                qs = qs.filter(
-                    Q(title__icontains=title_desc) |
-                    Q(description__icontains=title_desc))
-
-            else:
-                if price_from and price_to:
+        # Perform search if any of the search parameters are received
+        if title_desc or price_from or price_to:
+            try:
+                # title and description
+                if title_desc:
                     qs = qs.filter(
-                        Q(price__gte=price_from) &
-                        Q(price__lte=price_to))
+                        Q(title__icontains=title_desc) |
+                        Q(description__icontains=title_desc))
 
-                elif price_from:
-                    qs = qs.filter(price__gte=price_from)
+                else:
+                    if price_from and price_to:
+                        qs = qs.filter(
+                            Q(price__gte=price_from) &
+                            Q(price__lte=price_to))
 
-                elif price_to:
-                    qs = qs.filter(price__lte=price_to)
+                    elif price_from:
+                        qs = qs.filter(price__gte=price_from)
 
-        except ValidationError:
-            qs = qs.filter(Q(title__icontains=title_desc) | Q(description__icontains=title_desc))
+                    elif price_to:
+                        qs = qs.filter(price__lte=price_to)
 
-        return qs.order_by('title')
+            except ValidationError:
+                qs = qs.filter(Q(title__icontains=title_desc) | Q(description__icontains=title_desc))
+
+            return qs.order_by('title')
+
+        else:
+            # Otherwise return an ordered product list
+            print('Full product list')
+            return qs.order_by('slug')

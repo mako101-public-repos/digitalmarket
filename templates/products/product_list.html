@@ -1,8 +1,7 @@
 {% extends 'base.html'%}
 
+
 {% block content %}
-
-
 
 <div id="search-box">
 
@@ -24,10 +23,23 @@
 
 <h1>Products</h1>
 <ul>
+
     {#  object_list is a  built-in variable for ListView class #}
     {% for instance in object_list %}
-        <li> {{ instance }}: {{ instance.description }} - ${{ instance.price }} <a href="{% url 'products:detail' instance.id %}">Details</a></li>
-        <br></li>
+        {# cycle will go through the list of agrs and apply the next one each tims its called #}
+        {# ie here each class is assigned a different color :) #}
+        <div class="{%  cycle 'a' 'b' 'c' %}">
+        <li><a href="{% url 'products:detail' instance.id %}">{{ instance }}</a></li>
+        {% if instance.description %}
+        <i><strong>{{ instance.description|capfirst|truncatewords:3 }}</strong></i><br>
+        {% endif %}
+        ${{ instance.price }}
+        {# A stupid 'with' example  #}
+        {% with ':)' as smiley %}
+            <br>{{ smiley }}
+        {% endwith %}
+        <br><br>
+        </div>
     {% empty %}
         <li>No Products have been registered yet</li>
     {% endfor %}

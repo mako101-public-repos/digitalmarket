@@ -1,18 +1,39 @@
 {% load staticfiles %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
 </head>
 
     <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+<style>
+
+    {#  this brings the contents of the page to the middle and makes it somewhat responsive  #}
+    .main-content {
+        width: 600px;
+        margin: 0 auto;
+    }
+
     {% block style %}{% endblock %} {# we add an empty style block so that we can adjust it as needed later #}
+</style>
 
 <body>
+
+{% if request.user.is_authenticated %}
+
+    <p>Hello, <strong>{{ request.user.username|capfirst }}</strong></p>
+{% else %}
+    <p>Hello, please identify yourself</p>
+{% endif %}
+
+<div class="main-content">
+
     {% block content %}
 
         <p>Im from da base</p>
     {% endblock content %}  {# the 'content' part is optional #}
+</div>
+
 </body>
 
 </html>
