@@ -3,10 +3,23 @@ from django.db import models as m
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
-from django.core.files.storage import FileSystemStorage
+
+# imports for generating thumbnails
+import os
+import shutil
+import random
+from PIL import Image
+from django.core.files import File
 
 
 ##################################  Helper Functions ###########################################
+THUMBNAIL_CHOICES = (
+    ('hd', 'HD'),
+    ('sd', 'SD'),
+    ('micro', 'Micro')
+)
+
+
 def media_location(instance, filename):
     return '{}/{}'.format(instance.slug, filename)
 
@@ -56,7 +69,7 @@ class Product(m.Model):
     title = m.CharField(max_length=30)
     slug = m.SlugField(blank=True, unique=True)
     description = m.TextField(blank=True)
-    media = m.FileField(blank=True, null=True, upload_to=media_location)
+    media = m.ImageField(blank=True, null=True, upload_to=media_location)
     price = m.DecimalField(max_digits=100, decimal_places=2, default=9.99)
     sale_price = m.DecimalField(max_digits=100, decimal_places=2, default=6.99, null=True, blank=True)
     is_available = m.BooleanField()  # is the product available to purchase?
@@ -80,7 +93,8 @@ class Product(m.Model):
 
 class Thumbnail(m.Model):
     product = m.ForeignKey(Product)
-    user = m.ForeignKey(User)
+    # user = m.ForeignKey(User)
+    type = m.CharField(max_length=20, choices=THUMBNAIL_CHOICES, default='hd')
     height = m.CharField(max_length=20, null=True, blank=True)
     width = m.CharField(max_length=20, null=True, blank=True)
     media = m.ImageField(
@@ -122,10 +136,58 @@ def product_pre_save_receiver(sender, instance, *args, **kwargs):
 
 pre_save.connect(product_pre_save_receiver, sender=Product)
 
+# need to have a local copy of the uploaded image for this to work!!
+
+def create_thumbnail(media_path, instance, owner_slug, size):
+
+    max_sizes = {
+        'hd': (400, 500),
+        'sd': (200, 300),
+        'micro': (100, 150)
+        }
+
+    filename = '{}-{}'.format(os.path.basename(media_path), size)
+    print(filename)
+    dimensions = max_sizes[size]
+    print(dimensions)
+    thumb = Image.open(media_path)
+    thumb.thumbnail(dimensions, Image.ANTIALIAS)
+
+    temp_location = os.path.join('tmp', 'products', owner_slug)
+    print(temp_location)
+    if not os.path.exists(temp_location):
+        os.makedirs(temp_location)
+    temp_file_path = os.path.join(temp_location, filename)
+
+    temp_image = open(temp_file_path, 'wb')
+    thumb.save(temp_image)
+
+    temp_image = open(temp_file_path, 'rb')
+    thumb_file = File(temp_image)
+    instance.media.save(filename, thumb_file)
+
+    # Delete all temp stuff
+    # shutil.rmtree(temp_location, ignore_errors=True)
+
 
 # This could be use to notify other parts of the app when a new item has been added to DB
-def product_post_save_receiver(sender, instance, *args, **kwargs):
+def product_post_save_receiver(sender, instance, created, *args, **kwargs):
     print('Product has been saved with ID {}'.format(instance.id))
+
+    if instance.media:
+        hd, hd_created = Thumbnail.objects.get_or_create(product=instance, type='hd')
+        # sd = Thumbnail.objects.get_or_create(product=instance, type='sd')
+        # micro = Thumbnail.objects.get_or_create(product=instance, type='micro')
+
+        media_path = instance.media.name
+        owner_slug = instance.slug
+
+        if hd_created:
+            create_thumbnail(media_path, hd, owner_slug, 'hd')
+
+
+
+
 
 
 post_save.connect(product_post_save_receiver, sender=Product)
