@@ -8,19 +8,17 @@
 
     {#  object is a variable for DetailView class  #}
     <h3>Product: {{ object }}</h3>
-    <h3>Title: {{ object.title }}</h3>
     <i>{{ object.description }}</i>
     <p>Price: {{ object.price }}</p>
     <p>Sale Price: {{ object.sale_price }}</p>
     <p>Is available: {{ object.is_available }}</p>
-
 
     {# Media has to exist #}
     {# User has to be authenticated #}
     {# And has to have this product in his products to see the download/preview links #}
     {% if object.media and request.user.is_authenticated and object in request.user.myproducts.products.all %}
 
-        <p><a href="{{ object.get_download }}?preview=True">Preview (if possible)</a></p>
+        <p><a href="{{ object.get_download }}?preview=True">Full Size Preview </a></p>
 
         {#  object.get_download here is the same as {% url 'products:download' object.id %} #}
         <form action="{{ object.get_download }}">
@@ -28,6 +26,18 @@
         </form>
         <br>
     {% endif %}
+
+
+    <h3>Product Thumbnails</h3>
+    {% for thumb in object.thumbnail_set.all %}
+        <p>{{ thumb.type|upper }}: {{ thumb.height }} x {{ thumb.width }}</p>
+        <img src="{{ thumb.media.url }}"/>
+        <br>
+    {% empty %}
+        <p>No thumbnails found</p>
+        <br>
+    {% endfor %}
+    <br>
 
     {# Show the edit option for product owners and managers  #}
     {% if allowed_to_edit %}
