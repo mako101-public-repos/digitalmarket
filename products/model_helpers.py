@@ -9,8 +9,6 @@ from io import BytesIO
 
 from django.utils.text import slugify
 
-# from .models import Product
-
 
 def media_location(instance, filename):
     return '{}/{}'.format(instance.slug, filename)
@@ -44,15 +42,11 @@ def create_unique_slug(parent_class, instance, new_slug=None):
             new_slug = "{}-{}".format(slug, 1)
 
         # Rerun the function with the new slug
-        slug = create_unique_slug(instance, new_slug)
+        slug = create_unique_slug(parent_class, instance, new_slug)
     return slug
 
 
 def create_thumbnail(media_path, instance, owner_slug, size):
-
-    hd = 'hd'
-    sd = 'sd'
-    micro = 'micro'
 
     max_sizes = {
         'hd': (500, 600),
@@ -75,7 +69,7 @@ def create_thumbnail(media_path, instance, owner_slug, size):
     print('Thumbnail\'s dimensions:', dimensions)
     image_url = settings.MEDIA_URL + media_path
     image_data = requests.get(image_url)
-    print(image_url)
+    print('AWS Image URL:', image_url)
     thumb = Image.open(BytesIO(image_data.content))
     thumb.thumbnail(dimensions, Image.ANTIALIAS)
 
