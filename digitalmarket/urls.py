@@ -8,7 +8,8 @@ from django.views.generic import RedirectView
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', RedirectView.as_view(url='products/')),
-    url(r'^products/', include('products.urls', namespace='products'))
+    url(r'^products/', include('products.urls', namespace='products')),
+    url(r'^tags/', include('tags.urls', namespace='tags')),
 
     ####################### Old function-based views, for reference #################################
     # url(r'^list/$', product_views.list_view, name='list_view'),

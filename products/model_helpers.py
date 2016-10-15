@@ -49,9 +49,10 @@ def create_unique_slug(parent_class, instance, new_slug=None):
 def create_thumbnail(media_path, instance, owner_slug, size):
 
     max_sizes = {
-        'hd': (500, 600),
-        'sd': (300, 400),
-        'micro': (150, 200)
+        # width, height
+        'hd': (600, 500),
+        'sd': (400, 300),
+        'micro': (200, 150)
         }
 
     # Disassemble filename to add size to the name

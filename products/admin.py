@@ -2,6 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from .models import *
+from tags.models import Tag
 
 
 # inlines allow for editing related models on the same page as a parent model

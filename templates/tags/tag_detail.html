@@ -1,0 +1,22 @@
+{%  extends 'base.html' %}
+
+{% block content %}
+
+<h3>Products tagged '{{ object.title }}'</h3>
+    <ul>
+    {% for tagged_product in object.products.all %}
+      <li><a href="{{ tagged_product.get_absolute_url }}">{{ tagged_product.title|linebreaks}}</a></li>
+
+        {% for thumbnail in tagged_product.thumbnail_set.all %}
+
+            {% if thumbnail.type == 'sd' %}
+                <img src="{{ thumbnail.media.url }}">
+            {% endif %}
+
+        {% endfor %}
+{#        <img src="{{ tagged_product.thumbnail_set.get() }}"#}
+{#        </a>#}
+    {% endfor %}
+
+    </ul>
+{% endblock %}

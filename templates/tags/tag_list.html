@@ -1,0 +1,45 @@
+{% extends 'base.html'%}
+
+
+{% block content %}
+
+{#<div id="search-box">#}
+{##}
+{#    <h3>Search Products</h3>#}
+{#    <h4>By Title and Description</h4>#}
+{##}
+{#    <form method="GET" action="">#}
+{#        <input type="text" name="td" value="{{ request.GET.td }}">#}
+{#        <input type="submit" value="Search"> <br>#}
+{#    </form>#}
+{##}
+{#    <h4>Within a Price Range</h4>#}
+{#    <form method="GET" action="">#}
+{#        From <input type="number" name="pf" min="1" max="1000" value="{{ request.GET.pf }}">#}
+{#        To <input type="number" name="pt" min="1" max="1000" value="{{ request.GET.pt }}">#}
+{#        <input type="submit" value="Find"> <br>#}
+{#    </form>#}
+{#</div>#}
+
+<h1>Tags</h1>
+<ul>
+
+    {#  object_list is a  built-in variable for ListView class #}
+    {% for instance in object_list %}
+
+        <li><a href="{{ instance.get_absolute_url }}">{{ instance.title }}</a> ({{ instance.products.count }}
+            product{% if instance.products.count > 1 %}s{% endif %})</li>
+
+    {% empty %}
+        <li>No Tags have been registered yet</li>
+    {% endfor %}
+</ul>
+
+{# Allow authenticated users to create new products   #}
+{#{% if request.user.is_authenticated %}#}
+{#    <form action="{% url 'products:add' %}">#}
+{#        <input type="submit" value="Add a New Product" />#}
+{#    </form>#}
+{#{% endif %}#}
+
+{% endblock %}

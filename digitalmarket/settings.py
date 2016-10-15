@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'products',
     'storages',
-    'digitalmarket'
+    'digitalmarket',
+    'tags'
 ]
 
 MIDDLEWARE = [
