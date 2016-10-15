@@ -11,19 +11,6 @@ from django.http import HttpResponse
 # Various functions to make life easier
 from . import model_helpers as helpers
 
-# # imports for generating thumbnails
-# import os
-# import shutil
-# import random
-# from PIL import Image
-# from django.core.files import File
-# from digitalmarket import settings
-# import requests
-# from io import BytesIO
-# from django.core.exceptions import MultipleObjectsReturned
-# from django.http import HttpResponse
-
-##################################  Helper Functions ###########################################
 THUMBNAIL_CHOICES = (
     ('hd', 'HD'),
     ('sd', 'SD'),
