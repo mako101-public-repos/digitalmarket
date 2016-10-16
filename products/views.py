@@ -7,8 +7,9 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 
-from .models import Product
-from .forms import ProductAddForm, ProductModelForm
+from products.models import Product
+from tags.models import Tag
+from products.forms import ProductAddForm, ProductModelForm
 
 from digitalmarket.mixins import *
 from .mixins import *
@@ -49,7 +50,33 @@ class ProductEditView(ProductManagerEditMixin, FormVarsMixin, MultiSlugMixin, Up
     form_title = 'Update Product'
     submit_btn = 'Save Changes'
 
+    # this is for handling tags
+    def get_initial(self):
+        initial = super(ProductEditView, self).get_initial()
+        print(initial)
+        tags = self.get_object().tag_set.all()
+        # we grab the already assigned tags and construct a comma-separated string from them
+        # (we later break this list down into constituent tags when saving the changes ;))
+        initial['tags'] = ', '.join([tag.title for tag in tags])
+        return initial
+
+    def form_valid(self, form):
+        valid_data = super(ProductEditView, self).form_valid(form)
+        tags = form.cleaned_data.get('tags')
+        if tags:
+            # we read the tags field, and split it on commas
+            tags_list = tags.split(',')
+            for tag in tags_list:
+                # we then make sure each tag is added or already is in db
+                # [0] is the tag itself as .get_or_create returns a tuple
+                new_tag = Tag.objects.get_or_create(title=str(tag).strip())[0]
+                # and we add the product that is being edited to the tag :)
+                new_tag.products.add(self.get_object())
+            return valid_data
+
     # The rest is handled by ProductManagerEditMixin
+
+
 
 
 class ProductDetailView(ProductManagerDetailMixin, MultiSlugMixin, DetailView):

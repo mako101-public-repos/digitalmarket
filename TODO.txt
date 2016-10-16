@@ -1,0 +1,29 @@
+ - Add a Nav Bar
+ - add viktor to the default product owners/managers group
+
+
+ ## have a look at devpost -> django + python
+
+# twitter
+
+
+# django + redis cache -> for realitme data caching
+
+# django + heroku -> login and try to deploy app there
+
+# django hackathons, djangothons
+
+# testing in django (from django docs) -> set up tools to do things like test db conncetion automatically
+
+# postgres and mysql - both popular
+
+# more advanced -> build a socket + mongo db -> build an app track your mobile location
+
+# google developer maps python (search) google-maps-services-python
+
+# Django + nginx + uWSGI
+# https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/uwsgi/
+# http://uwsgi-docs.readthedocs.io/en/latest/tutorials/Django_and_nginx.html
+
+
+# django API + deployment + testing automation

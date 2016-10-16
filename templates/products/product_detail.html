@@ -9,6 +9,9 @@
     {#  object is a variable for DetailView class  #}
     <h3>Product: {{ object }}</h3>
     <i>{{ object.description }}</i>
+    {% if object.tag_set.all %}
+        <p>Tags: {% for tag in object.tag_set.all %}<a href="{{ tag.get_absolute_url }}"><i><strong>{{ tag }}</strong></i></a>, {% endfor %}</p>
+    {% endif %}
     <p>Price: {{ object.price }}</p>
     <p>Sale Price: {{ object.sale_price }}</p>
     <p>Is available: {{ object.is_available }}</p>

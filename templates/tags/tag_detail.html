@@ -1,22 +1,29 @@
 {%  extends 'base.html' %}
+{% load get_thumbnail %}
 
 {% block content %}
 
 <h3>Products tagged '{{ object.title }}'</h3>
     <ul>
     {% for tagged_product in object.products.all %}
-      <li><a href="{{ tagged_product.get_absolute_url }}">{{ tagged_product.title|linebreaks}}</a></li>
+      <li><p>{{ tagged_product.title|linebreaks}}</p></li>
+      <a href="{{ tagged_product.get_absolute_url }}"><img src="{{ tagged_product|get_thumbnail:'micro' }}"><br></a>
 
-        {% for thumbnail in tagged_product.thumbnail_set.all %}
+{# We now have a custome filter that can retrn any type of thumbnail :) #}
+{#        {% for thumbnail in tagged_product.thumbnail_set.all %}#}
+{##}
+{#            {% if thumbnail.type == 'sd' %}#}
+{#                <img src="{{ thumbnail.media.url }}">#}
+{#            {% endif %}#}
+{##}
+{#        {% endfor %}#}
 
-            {% if thumbnail.type == 'sd' %}
-                <img src="{{ thumbnail.media.url }}">
-            {% endif %}
 
-        {% endfor %}
-{#        <img src="{{ tagged_product.thumbnail_set.get() }}"#}
-{#        </a>#}
+
+{#        <img src="{{ tagged_product|get_thumbnail:'micro'}}" >#}
     {% endfor %}
 
     </ul>
+
+     <a href="{% url 'tags:list' %}"><br> <<< Back to Tags List</a>
 {% endblock %}

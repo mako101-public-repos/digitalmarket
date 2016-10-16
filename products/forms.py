@@ -9,6 +9,7 @@ AVAILABILITY_CHOICES = ((True, 'Yes'), (False, 'No'))  # tuple for all choice op
 class ProductModelForm(forms.ModelForm):
 
     # We can also define fields/widgets manually here -> helps keep the code style consistent with the 'manual' form
+    tags = forms.CharField(label='Tags', required=False)
     is_available = forms.ChoiceField(label='Is available for sale', widget=forms.RadioSelect,
                                      choices=AVAILABILITY_CHOICES, initial=True)
 
