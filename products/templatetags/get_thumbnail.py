@@ -19,3 +19,4 @@ def get_thumbnail(product, type):
 
     return product.thumbnail_set.filter(type=type).first().media.url
 
+

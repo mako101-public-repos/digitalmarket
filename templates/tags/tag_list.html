@@ -27,9 +27,12 @@
     {#  object_list is a  built-in variable for ListView class #}
     {% for instance in object_list %}
 
-        <li><a href="{{ instance.get_absolute_url }}">{{ instance.title }}</a> ({{ instance.products.count }}
-            product{% if instance.products.count > 1 %}s{% endif %})</li>
+        {# Only show tags that have products associated to them #}
+        {% if instance.products.count > 0 %}
 
+            <li><a href="{{ instance.get_absolute_url }}">{{ instance.title }}</a> ({{ instance.products.count }}
+                product{% if instance.products.count > 1 %}s{% endif %})</li>
+        {% endif %}
     {% empty %}
         <li>No Tags have been registered yet</li>
     {% endfor %}

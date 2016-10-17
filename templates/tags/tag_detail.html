@@ -7,8 +7,11 @@
     <ul>
     {% for tagged_product in object.products.all %}
       <li><p>{{ tagged_product.title|linebreaks}}</p></li>
-      <a href="{{ tagged_product.get_absolute_url }}"><img src="{{ tagged_product|get_thumbnail:'micro' }}"><br></a>
-
+      {% if tagged_product.thumbnail_set.count > 0 %}
+        <a href="{{ tagged_product.get_absolute_url }}"><img src="{{ tagged_product|get_thumbnail:'micro' }}"><br></a>
+      {% else %}
+          <a href="{{ tagged_product.get_absolute_url }}"><img src="{{ coming_soon|get_thumbnail:'micro' }}"><br></a>
+      {% endif %}
 {# We now have a custome filter that can retrn any type of thumbnail :) #}
 {#        {% for thumbnail in tagged_product.thumbnail_set.all %}#}
 {##}

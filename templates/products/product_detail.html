@@ -1,11 +1,11 @@
-{%  extends 'base.html' %}
+{% extends 'base.html' %}
+
+{% load get_thumbnail %}
 
 {% block content %}
     {{ block.super }}   {# we are importing the content #}
                         {# from the parent's block! #}
     <h1>{{ greeting }}</h1>
-    <h4>Here are the product details</h4>
-
     {#  object is a variable for DetailView class  #}
     <h3>Product: {{ object }}</h3>
     <i>{{ object.description }}</i>
@@ -31,17 +31,20 @@
     {% endif %}
 
 
-    <h3>Product Thumbnails</h3>
-    {% for thumb in object.thumbnail_set.all %}
-        <p>{{ thumb.type|upper }}: {{ thumb.height }} x {{ thumb.width }}</p>
-        <img src="{{ thumb.media.url }}"/>
+    {% if  object.thumbnail_set.count > 0 %}
+        <h3>Product Thumbnails</h3>
+        {% for thumb in object.thumbnail_set.all %}
+            <p>{{ thumb.type|upper }}: {{ thumb.height }} x {{ thumb.width }}</p>
+            <img src="{{ thumb.media.url }}"/>
+            <br>
+        {% endfor %}
+    {% else %}
         <br>
-    {% empty %}
-        <p>No thumbnails found</p>
+        <img src="{{ coming_soon|get_thumbnail:'sd' }}">
         <br>
-    {% endfor %}
-    <br>
+    {% endif %}
 
+    <br>
     {# Show the edit option for product owners and managers  #}
     {% if allowed_to_edit %}
         <form action="{% url 'products:edit' object.id %}">

@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from digitalmarket.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.core.exceptions import ValidationError
+from .models import Product
 
 # These are product-specific mixins so we store them in a separate file
 
@@ -26,6 +27,7 @@ class ProductManagerDetailMixin(LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ProductManagerDetailMixin, self).get_context_data()
+        context['coming_soon'] = Product.objects.get(slug='coming-soon')
         user = self.request.user
         obj = super(ProductManagerDetailMixin, self).get_object()
         if obj.owner == user or user in obj.managers.all():

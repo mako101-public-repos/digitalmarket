@@ -34,7 +34,7 @@ class Product(m.Model):
     media = m.ImageField(blank=True, null=True, upload_to=helpers.media_location)
     price = m.DecimalField(max_digits=100, decimal_places=2, default=9.99)
     sale_price = m.DecimalField(max_digits=100, decimal_places=2, default=6.99, null=True, blank=True)
-    is_available = m.BooleanField()  # is the product available to purchase?
+    is_available = m.BooleanField(default=True)  # is the product available to purchase?
 
     def __str__(self):
         return self.title

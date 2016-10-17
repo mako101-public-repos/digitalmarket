@@ -13,7 +13,21 @@ from products.forms import ProductAddForm, ProductModelForm
 
 from digitalmarket.mixins import *
 from .mixins import *
-from digitalmarket import settings  # need this to get media files locations
+
+
+################################### helper functions ###############################################
+def process_tags(tags, item):
+    # we read the tags field, and split it on commas
+    tags_list = tags.split(',')
+    # these are bad tags we don't want to use
+    exceptions = ['', ' ']
+    for tag in tags_list:
+        if tag not in exceptions:
+            # we then make sure each tag is added or already is in db
+            # [0] is the tag itself as .get_or_create returns a tuple
+            new_tag = Tag.objects.get_or_create(title=str(tag).strip())[0]
+            # and we add the product that is being edited to the tag :)
+            new_tag.products.add(item)
 
 
 ########################################## Class-Based Views :-) #########################################
@@ -35,6 +49,9 @@ class ProductCreateView(LoginRequiredMixin, FormVarsMixin, CreateView):
         # By this point the product has already been saved to the DB
         # so we can add ManyToMany values, e.g add user to managers
         form.instance.managers.add(user)
+        tags = form.cleaned_data.get('tags')
+        if tags:
+            process_tags(tags, form.instance)
         return valid_data
 
     # We only need to specify this if get_absolute_url() is not defined OR we want to overwrite it
@@ -63,16 +80,24 @@ class ProductEditView(ProductManagerEditMixin, FormVarsMixin, MultiSlugMixin, Up
     def form_valid(self, form):
         valid_data = super(ProductEditView, self).form_valid(form)
         tags = form.cleaned_data.get('tags')
+        obj = self.get_object()
+        # We remove all associated tags and add the set that is currently in the form(below)
+        obj.tag_set.clear()
         if tags:
-            # we read the tags field, and split it on commas
-            tags_list = tags.split(',')
-            for tag in tags_list:
-                # we then make sure each tag is added or already is in db
-                # [0] is the tag itself as .get_or_create returns a tuple
-                new_tag = Tag.objects.get_or_create(title=str(tag).strip())[0]
-                # and we add the product that is being edited to the tag :)
-                new_tag.products.add(self.get_object())
-            return valid_data
+            process_tags(tags, obj)
+        # if tags:
+        #     # we read the tags field, and split it on commas
+        #     tags_list = tags.split(',')
+        #     # these are bad tags we don't want to use
+        #     exceptions = ['', ' ']
+        #     for tag in tags_list:
+        #         if tag not in exceptions:
+        #             # we then make sure each tag is added or already is in db
+        #             # [0] is the tag itself as .get_or_create returns a tuple
+        #             new_tag = Tag.objects.get_or_create(title=str(tag).strip())[0]
+        #             # and we add the product that is being edited to the tag :)
+        #             new_tag.products.add(obj)
+        return valid_data
 
     # The rest is handled by ProductManagerEditMixin
 
@@ -134,6 +159,7 @@ class ProductListView(SimpleSearchMixin, ListView):
     #     print(context)
     #     context['queryset'] = self.get_queryset()
     #     return context
+
 
 ############################# Function-based views ##################################################
 def detail_view(request, object_id=None):
@@ -229,3 +255,6 @@ def list_view(request):
         'queryset': queryset
     }
     return render(request, template, context)
+
+
+##

@@ -1,3 +1,7 @@
+ = Play with QuerySets
+ =  tags disappear from admin when made inactive!!
+
+
  - Add a Nav Bar
  - add viktor to the default product owners/managers group
 

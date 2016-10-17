@@ -5,12 +5,27 @@ from django.core.urlresolvers import reverse
 
 from products.models import Product
 
+from django.db.models.query import QuerySet
+
+## this we can se with products
+# class CarManager(m.Manager):
+#     def get_queryset(self):
+#         return super(CarManager, self).get_queryset().filter()
+
+
+class ActiveTagManager(m.Manager):
+    def get_queryset(self):
+        return super(ActiveTagManager, self).get_queryset().filter(active=True).order_by('title')
+
 
 class Tag(m.Model):
     title = m.CharField(max_length=120, unique=True)
     slug = m.SlugField(blank=True, unique=True)
     products = m.ManyToManyField(Product, blank=True)
     active = m.BooleanField(default=True)
+
+    # This will allow us to use Tags.active_tags.all() etc type of queries :)
+    active_tags = ActiveTagManager()
 
     def __str__(self):
         return str(self.title)
