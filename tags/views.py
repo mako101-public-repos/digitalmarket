@@ -5,6 +5,7 @@ from django.views.generic.list import ListView
 
 from .models import Tag
 from products.models import Product
+from analytics.models import TagView
 
 
 class TagDetailView(DetailView):
@@ -12,10 +13,21 @@ class TagDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(TagDetailView, self).get_context_data(**kwargs)
-        print(context)
-        print(self.get_object().products.count)
         context['coming_soon'] = Product.objects.get(slug='coming-soon')
+
+        if self.request.user.is_authenticated():
+
+            # custom .add_count() method handles tag analytics
+            tag_analytics_object = TagView.objects.add_count(self.request.user, self.get_object())
+
+            # analytics_object = TagView.objects.get_or_create(
+            #     user=self.request.user,
+            #     tag=self.get_object())[0]
+            # analytics_object.count += 1
+            # analytics_object.save()
+
         return context
+
 
 
 class TagListView(ListView):

@@ -8,8 +8,9 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 
 from products.models import Product
-from tags.models import Tag
 from products.forms import ProductAddForm, ProductModelForm
+from tags.models import Tag
+from analytics.models import TagView
 
 from digitalmarket.mixins import *
 from .mixins import *
@@ -85,29 +86,26 @@ class ProductEditView(ProductManagerEditMixin, FormVarsMixin, MultiSlugMixin, Up
         obj.tag_set.clear()
         if tags:
             process_tags(tags, obj)
-        # if tags:
-        #     # we read the tags field, and split it on commas
-        #     tags_list = tags.split(',')
-        #     # these are bad tags we don't want to use
-        #     exceptions = ['', ' ']
-        #     for tag in tags_list:
-        #         if tag not in exceptions:
-        #             # we then make sure each tag is added or already is in db
-        #             # [0] is the tag itself as .get_or_create returns a tuple
-        #             new_tag = Tag.objects.get_or_create(title=str(tag).strip())[0]
-        #             # and we add the product that is being edited to the tag :)
-        #             new_tag.products.add(obj)
+
         return valid_data
 
     # The rest is handled by ProductManagerEditMixin
-
-
 
 
 class ProductDetailView(ProductManagerDetailMixin, MultiSlugMixin, DetailView):
     model = Product
     # using product_detail.html template
     # Everything else managed by ProductManagerDetailMixin
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductDetailView, self).get_context_data(**kwargs)
+        context['coming_soon'] = Product.objects.get(slug='coming-soon')
+        obj = self.get_object()
+        tags = obj.tag_set.all()
+        if tags and self.request.user.is_authenticated():
+            for tag in tags:
+                tag_analytics_object = TagView.objects.add_count(self.request.user, tag)
+        return context
 
 
 class ProductDownloadView(ProductManagerDetailMixin, MultiSlugMixin, DetailView):

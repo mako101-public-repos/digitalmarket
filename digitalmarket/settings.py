@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'products',
     'storages',
     'digitalmarket',
-    'tags'
+    'tags',
+    'analytics'
 ]
 
 MIDDLEWARE = [

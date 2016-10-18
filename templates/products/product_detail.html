@@ -10,7 +10,11 @@
     <h3>Product: {{ object }}</h3>
     <i>{{ object.description }}</i>
     {% if object.tag_set.all %}
-        <p>Tags: {% for tag in object.tag_set.all %}<a href="{{ tag.get_absolute_url }}"><i><strong>{{ tag }}</strong></i></a>, {% endfor %}</p>
+        <p>Tags: {% for tag in object.tag_set.all %}
+            {% if tag.active %}
+                <a href="{{ tag.get_absolute_url }}"><i><strong>{{ tag }}</strong></i></a>,
+            {% endif %}
+        {% endfor %}</p>
     {% endif %}
     <p>Price: {{ object.price }}</p>
     <p>Sale Price: {{ object.sale_price }}</p>

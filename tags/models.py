@@ -2,20 +2,31 @@ from django.db import models as m
 from django.db.models.signals import pre_save, post_save
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
-
-from products.models import Product
-
 from django.db.models.query import QuerySet
 
-## this we can se with products
-# class CarManager(m.Manager):
-#     def get_queryset(self):
-#         return super(CarManager, self).get_queryset().filter()
+from products.models import Product
 
 
 class ActiveTagManager(m.Manager):
     def get_queryset(self):
         return super(ActiveTagManager, self).get_queryset().filter(active=True).order_by('title')
+
+
+# this is redundant, but just for illustration
+# how to make a dynamic queryset
+# Tag.objects.all().active()
+class ActiveTagQuerySet(QuerySet):
+    def active(self):
+        return self.filter(active=True)
+
+
+class TagManager(m.Manager):
+    def get_queryset(self):
+        return ActiveTagQuerySet(self.model, using=self.db)
+
+    # the point of this whole exercise is that it lets us apply .active() filter! :-/
+    def all(self, *args, **kwargs):
+        return super(TagManager, self).all(*args, **kwargs).active()
 
 
 class Tag(m.Model):
@@ -24,8 +35,15 @@ class Tag(m.Model):
     products = m.ManyToManyField(Product, blank=True)
     active = m.BooleanField(default=True)
 
+    # We need to explicitly define the default manager or it wont be used
+    # It also has to be first to be default!!!
+    # https://docs.djangoproject.com/en/1.10/topics/db/managers/#default-managers
+    objects = m.Manager()
+
     # This will allow us to use Tags.active_tags.all() etc type of queries :)
     active_tags = ActiveTagManager()
+
+    tags = TagManager()
 
     def __str__(self):
         return str(self.title)
