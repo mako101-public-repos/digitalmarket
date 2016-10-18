@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'storages',
     'digitalmarket',
     'tags',
-    'analytics'
+    'analytics',
+    'dashboard'
 ]
 
 MIDDLEWARE = [

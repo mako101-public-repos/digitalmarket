@@ -41,9 +41,9 @@ class TagView(m.Model):
     objects = TagViewManager()
 
     def __str__(self):
-        return '{}: {} - {} times'.format(
+        return '{}: {}'.format(
             str(self.tag.title).upper(),
-            str(self.user).capitalize(),
-            self.count)
+            str(self.user).capitalize()
+        )
 
 
