@@ -1,4 +1,5 @@
 {% extends 'base.html'%}
+{% load get_thumbnail %}
 
 
 {% block content %}
@@ -6,7 +7,7 @@
 <div id="search-box">
 
     <h3>Search Products</h3>
-    <h4>By Title and Description</h4>
+    <h4>By Title, Description or Tags</h4>
 
     <form method="GET" action="">
         <input type="text" name="td" value="{{ request.GET.td }}">
@@ -30,15 +31,23 @@
             {# cycle will go through the list of agrs and apply the next one each tims its called #}
             {# ie here each class is assigned a different color :) #}
             <div class="{%  cycle 'a' 'b' 'c' %}">
-            <li><a href="{% url 'products:detail' instance.id %}">{{ instance }}</a></li>
+            <li><h4>{{ instance }}</h4></li>
+            {% if instance.media %}
+                <a href="{% url 'products:detail_slug' instance.slug %}">
+                    <img src="{{ instance|get_thumbnail:'micro' }}"/></a>
+            {% else %}
+                <a href="{% url 'products:detail_slug' instance.slug %}">
+                <img src="{{ coming_soon|get_thumbnail:'micro' }}"/></a>
+            {% endif %}
+            <br>
             {% if instance.description %}
-            <i><strong>{{ instance.description|capfirst|truncatewords:3 }}</strong></i><br>
+            <i><strong>{{ instance.description|capfirst|truncatewords:5 }}</strong></i><br>
             {% endif %}
             ${{ instance.price }}
             {# A stupid 'with' example  #}
-            {% with ':)' as smiley %}
-                <br>{{ smiley }}
-            {% endwith %}
+{#            {% with ':)' as smiley %}#}
+{#                <br>{{ smiley }}#}
+{#            {% endwith %}#}
             <br><br>
             </div>
         {%  endif %}

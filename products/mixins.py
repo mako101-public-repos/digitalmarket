@@ -2,11 +2,12 @@ from django.http import HttpResponse
 from digitalmarket.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.core.exceptions import ValidationError
-from .models import Product
+
+from products.models import Product
+from tags.models import Tag
+
 
 # These are product-specific mixins so we store them in a separate file
-
-
 class ProductManagerEditMixin(LoginRequiredMixin):
 
     # We import the LoginRequiredMixin here to do multiple checks at once!
@@ -59,9 +60,13 @@ class SimpleSearchMixin(object):
             try:
                 # title and description
                 if title_desc:
+                    matching_tags = Tag.active_tags.filter(
+                        title__icontains=title_desc)
+
                     qs = qs.filter(
                         Q(title__icontains=title_desc) |
-                        Q(description__icontains=title_desc))
+                        Q(description__icontains=title_desc) |
+                        Q(tag__in=matching_tags))
 
                 else:
                     if price_from and price_to:
@@ -76,9 +81,10 @@ class SimpleSearchMixin(object):
                         qs = qs.filter(price__lte=price_to)
 
             except ValidationError:
-                qs = qs.filter(Q(title__icontains=title_desc) | Q(description__icontains=title_desc))
+                qs = qs.filter(Q(title__icontains=title_desc) |
+                               Q(description__icontains=title_desc))
 
-            return qs.order_by('title')
+            return qs.order_by('title').distinct()
 
         else:
             # Otherwise return an ordered product list

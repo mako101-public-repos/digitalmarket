@@ -3,8 +3,14 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
-</head>
 
+    {# jQuery Core #}
+    <script src="http://code.jquery.com/jquery-1.12.4.min.js"></script>
+    {# jQuery UI #}
+    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+</head>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="{% static 'css/base.css' %}" />
 <style>
 
@@ -43,20 +49,60 @@
         float: right;
     }
 
+    .col-primary {
+        width: 85%;
+    }
+
+    .col-sidebar {
+        width: 15%;
+    }
+
+    #purchase-btn {
+        color: red;
+    }
+    .clearfix {
+        clear: both;
+    }
+
+    {# CSS to customize Purchase dialog buttons   #}
+    button.buy-btn {
+        border: 1px solid lawngreen !important;
+        background: lawngreen !important;
+    }
+
+    button.buy-btn .ui-button-text {
+        color: white;
+    }
+
+    button.cancel-btn {
+        border: 1px solid red !important;
+        background: red !important;
+    }
+
+    button.cancel-btn .button-txt {
+        color: white;
+    }
+
+    .ui-widget-header {
+        border: 1px solid white !important;
+        background: white !important;;
+    }
+
     {# we add an empty style block so that we can adjust it as needed later #}
-    {% block style %}{% endblock %}
+    {% block style %}
+    {% endblock %}
 </style>
 
 <body>
 
 <nav class="main-nav">
     <ul class="pull-left first-nav">
-        <li><a href="#">Digital Marketplace</a></li>
+        <li><a href="{% url 'dashboard' %}">Digital Marketplace</a></li>
     </ul>
     <ul class="pull-right">
         <li><a href="{% url 'products:list' %}">| Products</a></li>
         <li><a href="{% url 'tags:list' %}">| Tags</a></li>
-        <li><a href="{% url 'dashboard' %}">| Library</a></li>
+        <li><a href="#">| Library</a></li>
         <li><a href="http://localhost:8000/admin">| Admin |</a></li>
     </ul>
 
@@ -77,6 +123,14 @@
     {% endblock content %}  {# the 'content' part is optional #}
 </div>
 
+
+
+{# Test pop-up #}
+{#<script>#}
+{#    $(document).ready(function(){#}
+{#        alert("Page Loaded!");#}
+{#    })#}
+{#</script>#}
 </body>
 
 </html>

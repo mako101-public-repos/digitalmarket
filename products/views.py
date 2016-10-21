@@ -152,11 +152,12 @@ class ProductListView(SimpleSearchMixin, ListView):
     # product_list.html
     # template_name = 'list_view.html' - not needed anymore
 
-    # def get_context_data(self, **kwargs):
-    #     context = super(ProductListView, self).get_context_data()
-    #     print(context)
-    #     context['queryset'] = self.get_queryset()
-    #     return context
+    def get_context_data(self, **kwargs):
+        context = super(ProductListView, self).get_context_data()
+        print(context)
+        context['coming_soon'] = Product.objects.get(slug='coming-soon')
+        # context['queryset'] = self.get_queryset()
+        return context
 
 
 ############################# Function-based views ##################################################

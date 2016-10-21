@@ -5,56 +5,111 @@
 {% block content %}
     {{ block.super }}   {# we are importing the content #}
                         {# from the parent's block! #}
+
+{# Purchase dialog #}
+<script>
+$(document).ready(function(){
+
+{% block jquery %}
+    $('#purchase-btn').click(function (event) {
+        event.preventDefault();
+        $('#dialog-confirm').fadeIn('300');
+        $('#dialog-confirm').dialog({
+            resizable: false,
+            height: 220,
+            width: 350,
+            modal: true,
+            buttons: {
+                1: {
+                    id: 'confirm',
+                    text: 'Confirm',
+                    click: function () {
+                        console.log('purchase confimed');
+                        $(this).dialog('close')
+                    },
+                    class: 'buy-btn' {# we add classes to identify this and add custom css to buttons #}
+                },
+                2: {
+                    id: 'cancel',
+                    text: 'Cancel',
+                    click: function () {
+                        $(this).dialog('close')
+                    },
+                    class: 'cancel-btn'
+                }
+            }
+        })
+    });
+{% endblock jquery %}
+})
+</script>
+
+
     <h1>{{ greeting }}</h1>
     {#  object is a variable for DetailView class  #}
-    <h3>Product: {{ object }}</h3>
-    <i>{{ object.description }}</i>
-    {% if object.tag_set.all %}
-        <p>Tags: {% for tag in object.tag_set.all %}
-            {% if tag.active %}
-                <a href="{{ tag.get_absolute_url }}"><i><strong>{{ tag }}</strong></i></a>,
-            {% endif %}
-        {% endfor %}</p>
-    {% endif %}
-    <p>Price: {{ object.price }}</p>
-    <p>Sale Price: {{ object.sale_price }}</p>
-    <p>Is available: {{ object.is_available }}</p>
 
-    {# Media has to exist #}
-    {# User has to be authenticated #}
-    {# And has to have this product in his products to see the download/preview links #}
-    {% if object.media and request.user.is_authenticated and object in request.user.myproducts.products.all %}
-
-        <p><a href="{{ object.get_download }}?preview=True">Full Size Preview </a></p>
-
-        {#  object.get_download here is the same as {% url 'products:download' object.id %} #}
-        <form action="{{ object.get_download }}">
-            <input type="submit" value="Download Media" />
-        </form>
-        <br>
-    {% endif %}
+    <div class="col-primary pull-left">
+        <h3>Product: {{ object }}</h3>
+        <i>{{ object.description }}</i>
+        {% if object.tag_set.all %}
+            <p>Tags: {% for tag in object.tag_set.all %}
+                {% if tag.active %}
+                    <a href="{{ tag.get_absolute_url }}"><i><strong>{{ tag }}</strong></i></a>,
+                {% endif %}
+            {% endfor %}</p>
+        {% endif %}
+        <p>Price: {{ object.price }}</p>
+        <p>Sale Price: {{ object.sale_price }}</p>
+        <p>Is available: {{ object.is_available }}</p>
 
 
-    {% if  object.thumbnail_set.count > 0 %}
-        <h3>Product Thumbnails</h3>
-        {% for thumb in object.thumbnail_set.all %}
-            <p>{{ thumb.type|upper }}: {{ thumb.height }} x {{ thumb.width }}</p>
-            <img src="{{ thumb.media.url }}"/>
+        {% if  object.thumbnail_set.count > 0 %}
+            <h3>Product Thumbnails</h3>
+            {% for thumb in object.thumbnail_set.all %}
+                <p>{{ thumb.type|upper }}: {{ thumb.height }} x {{ thumb.width }}</p>
+                <img src="{{ thumb.media.url }}"/>
+                <br>
+            {% endfor %}
+        {% else %}
             <br>
-        {% endfor %}
-    {% else %}
-        <br>
-        <img src="{{ coming_soon|get_thumbnail:'sd' }}">
-        <br>
-    {% endif %}
+            <img src="{{ coming_soon|get_thumbnail:'sd' }}">
+            <br>
+        {% endif %}
 
-    <br>
-    {# Show the edit option for product owners and managers  #}
-    {% if allowed_to_edit %}
-        <form action="{% url 'products:edit' object.id %}">
-            <input type="submit" value="Edit Product" />
-        </form>
-    {% endif %}
+        <br>
+        {# Show the edit option for product owners and managers  #}
+        {% if allowed_to_edit %}
+            <form action="{% url 'products:edit' object.id %}">
+                <input type="submit" value="Edit Product" />
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="col-sidebar pull-right">
+        {# Media has to exist #}
+        {# User has to be authenticated #}
+        {# And has to have this product in his products to see the download/preview links #}
+        {% if object.media and request.user.is_authenticated and object in request.user.myproducts.products.all %}
+
+            <p><a href="{{ object.get_download }}?preview=True">Full Size Preview </a></p>
+
+            {#  object.get_download here is the same as {% url 'products:download' object.id %} #}
+            <form action="{{ object.get_download }}">
+                <input type="submit" value="Download Media" />
+            </form>
+            <br>
+        {% else %}
+            <p><a id="purchase-btn" href="#">Purchase</a></p>
+            <div id="dialog-confirm" title="Confirm Purchase" style="display:none">
+                <p>Your card on file will be charged</p>
+                <p>Please confirm this purchase</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="clearfix"></div>
 
     <a href="{% url 'products:list' %}"><br> <<< Back to Product List</a>
 
