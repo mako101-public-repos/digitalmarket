@@ -4,10 +4,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from dashboard.views import DashboardView
+from checkout.views import CheckoutTestView
 
 
 urlpatterns = [
     url(r'^$', DashboardView.as_view(), name='dashboard'),
+    url(r'^test$', CheckoutTestView.as_view(), name='test'),
     url(r'^admin/', admin.site.urls),
     # url(r'^$', RedirectView.as_view(url='products/')),
     url(r'^products/', include('products.urls', namespace='products')),
