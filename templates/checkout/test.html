@@ -2,37 +2,69 @@
 {% block content %}
 
 <script>
+
+{#        $('#test-call').click(function (event) {#}
+{#            event.preventDefault();#}
+{#            $.ajax({#}
+                {# JavaScript dictionary  #}
+{#                url: "{% url 'test' %}",#}
+{#                method: 'POST',#}
+{#                data: {#}
+{#                    testData: 'Hello New Data!',#}
+{#                    // this is now handled globally by django-csrf.js#}
+{#                    // csrfmiddlewaretoken: "{{ csrf_token }}"#}
+{#                },#}
+{#                success: function (data, textStatus, jqXHR){#}
+                    {#  Accessing the value of the dict key here  #}
+{#                    console.log(data.works)#}
+{#                    if (data.works) {#}
+{#                        $("#content").html(data.time)#}
+{#                    }#}
+{#                    console.log(textStatus)#}
+{#                    console.log(jqXHR)#}
+{#                },#}
+{#                error: function (errorThrown, textStatus, jqXHR){#}
+{#                    if (errorThrown.status == 403) {#}
+{#                        // alert(jqXHR.statusText)#}
+{#                        alert(errorThrown.statusText)#}
+{#                    }#}
+{#                    console.log(jqXHR)#}
+{#                    console.log(errorThrown)#}
+{#                    console.log(textStatus)#}
+{#                }#}
+
+
 $(document).ready(function(){
     {% block jquery %}
         $('#test-call').click(function (event) {
             event.preventDefault();
-            $.ajax({
-                {# JavaScript dictionary  #}
+
+            var request = $.ajax({
                 url: "{% url 'test' %}",
                 method: 'POST',
                 data: {
-                    testData: 'Hello New Data!',
-                    // this is now handled globally by django-csrf.js
-                    // csrfmiddlewaretoken: "{{ csrf_token }}"
-                },
-                success: function (data, textStatus, jqXHR){
-                    {#  Accessing the value of the dict key here  #}
-                    console.log(data.works)
-                    if (data.works) {
+                    testData: 'Hello New Data!'
+                }
+            });
+
+            request.done(function (data, textStatus, jqXHR) {
+                if (data.works) {
                         $("#content").html(data.time)
                     }
-                    console.log(textStatus)
-                    console.log(jqXHR)
-                },
-                error: function (errorThrown, textStatus, jqXHR){
-                    if (errorThrown.status == 403) {
-                        // alert(jqXHR.statusText)
-                        alert(errorThrown.statusText)
+                console.log(textStatus);
+                console.log(jqXHR)
+            });
+
+            request.fail(function (errorThrown, textStatus, jqXHR) {
+                if (errorThrown.status == 403) {
+                    alert('You must be logged in to make purchases')
                     }
-                    console.log(jqXHR)
-                    console.log(errorThrown)
-                    console.log(textStatus)
+                else {
+                    alert(errorThrown.statusText)
                 }
+                console.log(jqXHR);
+                console.log(errorThrown);
+                console.log(textStatus)
             })
         });
 
@@ -41,5 +73,5 @@ $(document).ready(function(){
 </script>
     {# even though we pass a link here, event.preventDefault() will preent the link from being opened #}
     <a id="test-call" href="http://www.foo.com">Test Ajax</a>
-    <div id="content"></div>
+    <div id="content"></div>   {# This is whee we show the result of the successfull Aajax call #}
 {% endblock %}

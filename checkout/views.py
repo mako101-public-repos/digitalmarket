@@ -12,16 +12,21 @@ class CheckoutTestView(View):
 
     def post(self, request, *args, **kwargs):
         request_data = request.POST.get('testData')
-        token = request.POST.get('csrfmiddlewaretoken')
+
         print(request_data)
-        print('The CSRF token is: {}'.format(token))
         if request.is_ajax():
+
+            # This does nothing!
+            if not request.user.is_authenticated():
+                data = {
+                    'works': False
+                }
+                return JsonResponse(data, status=401)
             data = {
                 'works': True,
                 'time': datetime.now()
             }
             return JsonResponse(data)
-
 
         return HttpResponse(request_data)
 
