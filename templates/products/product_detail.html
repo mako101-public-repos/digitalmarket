@@ -24,7 +24,36 @@ $(document).ready(function(){
                     id: 'confirm',
                     text: 'Confirm',
                     click: function () {
-                        console.log('purchase confimed');
+                        console.log('Purchase confirmed');
+                         var request = $.ajax({
+                            url: "{% url 'checkout' %}",
+                            method: 'POST',
+                            data: {
+                                product_id: "{{ object.id }}"
+                            }
+                        });
+
+                        request.done(function (data) {
+                            console.log('Processing ...');
+                            console.log(data)
+                        });
+
+                        request.fail(function (errorThrown, textStatus, jqXHR) {
+                            if (errorThrown.status == 403) {
+                                alert('You must be logged in to make purchases')
+                                }
+                            else if (errorThrown.status == 500) {
+                                alert('Sorry, something went wrong with the purchase.\n\n' +
+                                        'Please contact IT support')
+                                }
+                            else {
+                                alert(errorThrown.statusText)
+                            }
+                            console.log(jqXHR);
+                            console.log(errorThrown);
+                            console.log(textStatus)
+                        });
+
                         $(this).dialog('close')
                     },
                     class: 'buy-btn' {# we add classes to identify this and add custom css to buttons #}
