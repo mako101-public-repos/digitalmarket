@@ -15,6 +15,9 @@
 
 # django + heroku -> login and try to deploy app there
 
+# Django REST Framework!!
+# http://www.django-rest-framework.org/
+
 # django hackathons, djangothons
 
 # testing in django (from django docs) -> set up tools to do things like test db conncetion automatically

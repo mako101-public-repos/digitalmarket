@@ -2,20 +2,26 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.shortcuts import get_object_or_404
+from .decorators import ajax_required
 
 # Mixins are custom classes that can be added to other classes to enhance functionality!!
 
 
+class AjaxRequiredMixin(object):
+    @method_decorator(ajax_required)
+    # dispatch ids the method used to send data
+    def dispatch(self, request, *args, **kwargs):
+        return super(AjaxRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+
 class LoginRequiredMixin(object):
     @method_decorator(login_required)
-    # dispatch ids the method used to send data
     def dispatch(self, request, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class StaffRequiredMixin(object):
     @method_decorator(staff_member_required)
-    # dispatch ids the method used to send data
     def dispatch(self, request, *args, **kwargs):
         return super(StaffRequiredMixin, self).dispatch(request, *args, **kwargs)
 

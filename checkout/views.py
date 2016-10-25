@@ -4,44 +4,47 @@ from django.http import HttpResponse, JsonResponse, Http404
 from django.views.generic import View
 
 from products.models import Product, MyProducts
+from digitalmarket.mixins import AjaxRequiredMixin
+
 
 # Create your views here.
-class CheckoutAjaxView(View):
+class CheckoutAjaxView(AjaxRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
 
-        if request.is_ajax():
+        # This does nothing, as CSRF token is not passed for unauthed users!
+        if not request.user.is_authenticated():
+                return JsonResponse({}, status=401)
+        user = request.user
+        product_id = request.POST.get('product_id')
+        print('Product ID is: {}'.format(product_id))
+        # Verify that the product being purchased is still there!
+        product_exists = Product.objects.filter(id=product_id).exists()
+        if not product_exists:
+            return JsonResponse({}, status=404)
 
-            # This does nothing, as CSRF token is not passed for unauthed users!
-            if not request.user.is_authenticated():
-                    return JsonResponse({}, status=401)
-            user = request.user
-            product_id = request.POST.get('product_id')
-            print('Product ID is: {}'.format(product_id))
-            # Verify that the product being purchased is still there!
-            product_exists = Product.objects.filter(id=product_id).exists()
-            if not product_exists:
-                return JsonResponse({}, status=404)
+        try:
+            purchased_product = Product.objects.get(id=product_id)
+        except:
+            purchased_product = Product.objects.filter(id=product_id).first()
 
-            try:
-                purchased_product = Product.objects.get(id=product_id)
-            except:
-                purchased_product = Product.objects.filter(id=product_id).first()
+        # Retrieve or create the list of products owned by user
+        # and add the newly purchased product to it
+        try:
+            my_products = MyProducts.objects.get_or_create(user=request.user)[0]
+            my_products.products.add(purchased_product)
 
-            # Retrieve or create the list of products owned by user
-            # and add the newly purchased prodcts to it
-            try:
-                my_products = MyProducts.objects.get_or_create(user=request.user)[0]
-                my_products.products.add(purchased_product)
-            except:
-                return JsonResponse({}, status=500)
+            download_link = purchased_product.get_download()
+            preview_link = download_link + '?preview=True'
             data = {
-                'order_received': True,
-                'time': datetime.now()
+                'time': datetime.now(),
+                'download': download_link,
+                'preview': preview_link
             }
             return JsonResponse(data)
 
-        raise Http404
+        except:
+            return JsonResponse({}, status=500)
 
 
 class CheckoutTestView(View):

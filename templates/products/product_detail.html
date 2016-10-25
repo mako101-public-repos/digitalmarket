@@ -13,6 +13,7 @@ $(document).ready(function(){
 {% block jquery %}
     $('#purchase-btn').click(function (event) {
         event.preventDefault();
+        var purchaseBtn = $(this)
         $('#dialog-confirm').fadeIn('300');
         $('#dialog-confirm').dialog({
             resizable: false,
@@ -34,8 +35,19 @@ $(document).ready(function(){
                         });
 
                         request.done(function (data) {
-                            console.log('Processing ...');
-                            console.log(data)
+                            console.log('Purchased {{ object.slug }}, product ID {{ object.id }}');
+                            console.log(data.time);
+
+                            var removeButton = purchaseBtn.fadeOut(500)
+                            var links = (
+                                    '<p>Purchase Successfull!<p><br>'
+                                    + '<p><a href="{{ object.get_download }}?preview=True">Full Size Preview </a></p>'
+                                    + '<form action="{{ object.get_download }}">'
+                                    + '<input type="submit" value="Download Media" />'
+                                    + "</form>");
+                           removeButton.after($(links))
+
+
                         });
 
                         request.fail(function (errorThrown, textStatus, jqXHR) {
@@ -120,13 +132,15 @@ $(document).ready(function(){
         {# And has to have this product in his products to see the download/preview links #}
         {% if object.media and request.user.is_authenticated and object in request.user.myproducts.products.all %}
 
-            <p><a href="{{ object.get_download }}?preview=True">Full Size Preview </a></p>
+            <div id="download-links">
+                <p><a href="{{ object.get_download }}?preview=True">Full Size Preview </a></p>
 
-            {#  object.get_download here is the same as {% url 'products:download' object.id %} #}
-            <form action="{{ object.get_download }}">
-                <input type="submit" value="Download Media" />
-            </form>
-            <br>
+                {#  object.get_download here is the same as {% url 'products:download' object.id %} #}
+                <form action="{{ object.get_download }}">
+                    <input type="submit" value="Download Media" />
+                </form>
+                <br>
+            </div>
         {% else %}
             <p><a id="purchase-btn" href="#">Purchase</a></p>
             <div id="dialog-confirm" title="Confirm Purchase" style="display:none">
