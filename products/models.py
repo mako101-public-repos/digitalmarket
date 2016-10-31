@@ -10,12 +10,14 @@ from django.http import HttpResponse
 
 # Various functions to make life easier
 from . import model_helpers as helpers
+from sellers.models import SellerAccount
 
 THUMBNAIL_CHOICES = (
     ('hd', 'HD'),
     ('sd', 'SD'),
     ('micro', 'Micro')
 )
+
 
 ############################ Model Classes ##########################
 class Product(m.Model):
@@ -24,10 +26,11 @@ class Product(m.Model):
     # owner = m.OneToOneField(User)
 
     # Many-to-one mapping
-    owner = m.ForeignKey(User, related_name='product_owner')
-    # Many-to-many mapping
-    managers = m.ManyToManyField(User, related_name='product_managers', blank=True)
+    # owner = m.ForeignKey(User, related_name='product_owner')
+    # # Many-to-many mapping
+    # managers = m.ManyToManyField(User, related_name='product_managers', blank=True)
 
+    seller = m.ForeignKey(SellerAccount)
     title = m.CharField(max_length=30)
     slug = m.SlugField(blank=True, unique=True)
     description = m.TextField(blank=True)
