@@ -6,6 +6,7 @@ from products.mixins import LoginRequiredMixin
 from sellers.forms import NewSellerForm
 from sellers.models import SellerAccount
 
+
 # Create your views here.
 class SellerDashboard(LoginRequiredMixin, FormMixin, View):
     form_class = NewSellerForm

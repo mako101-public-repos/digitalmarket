@@ -34,6 +34,7 @@ class Product(m.Model):
     media = m.ImageField(blank=True, null=True, upload_to=helpers.media_location)
     price = m.DecimalField(max_digits=100, decimal_places=2, default=9.99)
     sale_price = m.DecimalField(max_digits=100, decimal_places=2, default=6.99, null=True, blank=True)
+    on_sale = m.BooleanField(default=False)
     is_available = m.BooleanField(default=True)  # is the product available to purchase?
 
     def __str__(self):
@@ -51,6 +52,12 @@ class Product(m.Model):
         view_name = 'products:download'
         url = reverse(view_name, kwargs={'pk': self.id})
         return url
+
+    @property
+    def get_price(self):
+        if self.sale_price and self.on_sale:
+            return self.sale_price
+        return self.price
 
 
 class Thumbnail(m.Model):

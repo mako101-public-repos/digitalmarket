@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'analytics',
     'dashboard',
     'checkout',
+    'billing',
     'sellers'
 ]
 

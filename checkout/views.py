@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse, Http404
 from django.views.generic import View
 
 from products.models import Product, MyProducts
+from billing.models import Transaction
 from digitalmarket.mixins import AjaxRequiredMixin
 
 
@@ -27,6 +28,13 @@ class CheckoutAjaxView(AjaxRequiredMixin, View):
             purchased_product = Product.objects.get(id=product_id)
         except:
             purchased_product = Product.objects.filter(id=product_id).first()
+
+        # Run transaction, assume its successful by default
+        transaction = Transaction.objects.create(
+            user=user,
+            product=purchased_product,
+            price=purchased_product.get_price
+        )
 
         # Retrieve or create the list of products owned by user
         # and add the newly purchased product to it

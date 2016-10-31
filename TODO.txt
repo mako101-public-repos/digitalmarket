@@ -1,3 +1,10 @@
+ - play with property decorator, get_price method
+ - manage sale stuff:
+     - add on_sale field
+     - if on sale -> show that it is on sale in the
+     product detail view!
+
+ - insert download_lik and preview_link into ajax response when purchasing
  - edit tags in admin?
  - mark products as owned?
  - Build a Library page

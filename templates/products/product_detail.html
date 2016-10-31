@@ -99,9 +99,18 @@ $(document).ready(function(){
                 {% endif %}
             {% endfor %}</p>
         {% endif %}
-        <p>Price: {{ object.price }}</p>
-        <p>Sale Price: {{ object.sale_price }}</p>
-        <p>Is available: {{ object.is_available }}</p>
+
+        {% if object.is_available %}
+            {% if object.on_sale %}
+                <div id="on-sale"><h3>ON SALE!!!</h3></div>
+                <p>Price: ${{ object.sale_price }}</p>
+            {% else %}
+                <p>Price: ${{ object.price }}</p>
+             {% endif %}
+         {% else %}
+            <div id="unavailable"><h3>Currently Unavailable</h3></div>
+        {% endif  %}
+        <br>
 
 
         {% if  object.thumbnail_set.count > 0 %}
