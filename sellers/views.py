@@ -5,6 +5,8 @@ from django.views.generic.edit import FormMixin
 from products.mixins import LoginRequiredMixin
 from sellers.forms import NewSellerForm
 from sellers.models import SellerAccount
+from billing.models import Transaction
+from products.models import Product
 
 
 # Create your views here.
@@ -34,7 +36,12 @@ class SellerDashboard(LoginRequiredMixin, FormMixin, View):
             active = account.active
 
             if active:
+                # get all seller's products and all transactions involving these products
+                products = Product.objects.filter(seller=account)
+                transactions = Transaction.objects.filter(product__in=products)
                 context['title'] = 'Seller Dashboard'
+                context['products'] = products
+                context['transactions'] = transactions
             # i.e. if not approved
             else:
                 context['title'] = 'Account Pending Approval'

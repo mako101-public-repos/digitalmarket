@@ -31,7 +31,8 @@ class ProductManagerDetailMixin(LoginRequiredMixin):
         context['coming_soon'] = Product.objects.get(slug='coming-soon')
         user = self.request.user
         obj = super(ProductManagerDetailMixin, self).get_object()
-        if obj.owner == user or user in obj.managers.all():
+        # if obj.owner == user or user in obj.managers.all():
+        if obj.seller == user:
             context['allowed_to_edit'] = True
 
         print('Using detail CBV!\n')

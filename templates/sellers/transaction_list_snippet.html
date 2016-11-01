@@ -1,0 +1,18 @@
+<table>
+    <thead>
+        <th>Product</th>
+        <th>User</th>
+        <th>Price</th>
+        <th>Purchase Date</th>
+    </thead>
+    <tbody>
+    {% for t in transaction_list %}
+    <tr>
+        <td>{{ t.product }}</td>
+        <td>{{ t.user }}</td>
+        <td>{{ t.price }}</td>
+        <td>{{ t.timestamp|date:"SHORT_DATE_FORMAT" }} {{ t.timestamp|date:"H:i:s" }}</td>
+    </tr>
+    {%  endfor %}
+    </tbody>
+</table>

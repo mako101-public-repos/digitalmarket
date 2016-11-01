@@ -1,3 +1,5 @@
+
+ - allowed to edit is broken
  - play with property decorator, get_price method
  - clean up date for transactions
  - insert download_lik and preview_link into ajax response when purchasing
