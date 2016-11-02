@@ -11,7 +11,11 @@
         <td>{{ t.product }}</td>
         <td>{{ t.user }}</td>
         <td>{{ t.price }}</td>
-        <td>{{ t.timestamp|date:"SHORT_DATE_FORMAT" }} {{ t.timestamp|date:"H:i:s" }}</td>
+        {% if time == 'since' %}
+            <td>{{ t.timestamp|timesince }}</td>
+        {% elif time == 'detailed' %}
+            <td>{{ t.timestamp|date:"SHORT_DATE_FORMAT" }} {{ t.timestamp|date:"H:i:s" }}</td>
+        {% endif %}
     </tr>
     {%  endfor %}
     </tbody>

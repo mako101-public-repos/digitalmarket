@@ -1,16 +1,26 @@
 from django.shortcuts import render
 from django.views.generic import View
+from django.views.generic.list import ListView
 from django.views.generic.edit import FormMixin
 
-from products.mixins import LoginRequiredMixin
+from sellers.mixins import SellerAccountMixin
+
 from sellers.forms import NewSellerForm
 from sellers.models import SellerAccount
 from billing.models import Transaction
-from products.models import Product
 
 
 # Create your views here.
-class SellerDashboard(LoginRequiredMixin, FormMixin, View):
+class SellerTransactionList(SellerAccountMixin, ListView):
+    model = Transaction
+    template_name = 'sellers/transaction_list_view.html'
+
+    def get_queryset(self):
+        transactions = self.get_transactions()
+        return transactions
+
+
+class SellerDashboard(SellerAccountMixin, FormMixin, View):
     form_class = NewSellerForm
     success_url = '/seller/'
 
@@ -23,7 +33,7 @@ class SellerDashboard(LoginRequiredMixin, FormMixin, View):
 
     def get(self, request, *args, **kwargs):
         apply_form = self.get_form()  # NewSellerForm()
-        account = SellerAccount.objects.filter(user=self.request.user)
+        account = self.get_account()
         context = {}
 
         # 3 possible options whe arriving to the sellers URL
@@ -31,14 +41,13 @@ class SellerDashboard(LoginRequiredMixin, FormMixin, View):
         # if exists but not active, show pending
         # if exists and active, show dashboard
 
-        if account.exists():
-            account = account.first()
-            active = account.active
+        # SellerAccountMixin will return account=None if no account found
+        if account:
 
-            if active:
+            if account.active:
                 # get all seller's products and all transactions involving these products
-                products = Product.objects.filter(seller=account)
-                transactions = Transaction.objects.filter(product__in=products)
+                products = self.get_products()
+                transactions = self.get_transactions()[:5]
                 context['title'] = 'Seller Dashboard'
                 context['products'] = products
                 context['transactions'] = transactions

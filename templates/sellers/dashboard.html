@@ -31,8 +31,8 @@
 
     {% if transactions %}
         <div class="pull-left col-primary">
-            <h2>Transactions List</h2>
-            {% include 'sellers/transaction_list_snippet.html' with transaction_list=transactions %}
+            <h2>Recent Transactions</h2>
+            {% include 'sellers/transaction_list_snippet.html' with transaction_list=transactions  time='since' %}
         </div>
     {% endif %}
 
