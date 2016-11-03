@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from digitalmarket.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.core.exceptions import ValidationError
@@ -10,7 +10,7 @@ from sellers.mixins import SellerAccountMixin
 
 
 # These are product-specific mixins so we store them in a separate file
-class ProductManagerEditMixin(LoginRequiredMixin):
+class ProductManagerEditMixin(SellerAccountMixin, object):
 
     # We import the LoginRequiredMixin here to do multiple checks at once!
     # a) user is authenticated
@@ -19,11 +19,17 @@ class ProductManagerEditMixin(LoginRequiredMixin):
 
     def get_object(self, *args, **kwargs):
         user = self.request.user
+        seller = self.get_account()
         obj = super(ProductManagerEditMixin, self).get_object(*args, **kwargs)
-        if obj.owner == user or user in obj.managers.all():
+        print('User is:', user, type(user))
+        print('object is', obj)
+        print('seller is', seller, type(seller))
+        print('User is seller?: ', seller == user)
+        # if obj.owner == user or user in obj.managers.all():
+        if str(seller) == str(user):
             return obj
         else:
-            raise HttpResponse('You are not authorised to edit this product!', status=403)
+            raise Http404('You are not authorised to edit this product!')
 
 
 class ProductManagerDetailMixin(LoginRequiredMixin):
@@ -42,6 +48,7 @@ class ProductManagerDetailMixin(LoginRequiredMixin):
         return context
 
 
+# Implement simple search
 def perform_search(request, qs):
     # this will look for '?q=<search pattern>
     #  and match it with titles or descriptions
@@ -90,7 +97,6 @@ def perform_search(request, qs):
 
 
 class SearchMixin(object):
-    # Implement simple search
     # This will search all products, and can be run by unauthorised user
     def get_queryset(self, **kwargs):
         qs = super(SearchMixin, self).get_queryset(**kwargs)

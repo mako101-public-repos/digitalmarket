@@ -1,0 +1,58 @@
+{% extends 'base.html'%}
+{% load get_thumbnail %}
+
+
+{% block content %}
+
+<div id="search-box">
+
+    <h3>Search Products</h3>
+    <h4>By Title, Description or Tags</h4>
+
+    <form method="GET" action="">
+        <input type="text" name="td" value="{{ request.GET.td }}">
+        <input type="submit" value="Search"> <br>
+    </form>
+
+    <h4>Within a Price Range</h4>
+    <form method="GET" action="">
+        From <input type="number" name="pf" min="1" max="1000" value="{{ request.GET.pf }}">
+        To <input type="number" name="pt" min="1" max="1000" value="{{ request.GET.pt }}">
+        <input type="submit" value="Find"> <br>
+    </form>
+</div>
+
+<h1>Manage Products</h1>
+
+<table>
+    {#  object_list is a  built-in variable for ListView class #}
+    {% for instance in object_list %}
+        <tr>
+            <td>{{ instance.id }}</td>
+            <td>{{ instance.title }}</td>
+            <td>
+            {% if instance.media %}
+                    <a href="{% url 'products:detail_slug' instance.slug %}">
+                        <img src="{{ instance|get_thumbnail:'micro' }}" style="max-width: 100px"/></a>
+            {% else %}
+                    <a href="{% url 'products:detail_slug' instance.slug %}">
+                        <img src="{{ coming_soon|get_thumbnail:'micro' }}" style="max-width: 100px"/></a>
+            {% endif %}
+            </td>
+            <td>  ${{ instance.price }}  </td>
+            <td>Available: {{ instance.is_available }}</td>
+            <td><a href="{{ instance.get_edit_url }}">Edit</a></td>
+        </tr>
+    {% empty %}
+        <li>You have not registered any products yet</li>
+    {% endfor %}
+</table>
+
+{# Allow authenticated users to create new products   #}
+{% if request.user.is_authenticated %}
+    <form action="{% url 'sellers:product_add' %}">
+        <input type="submit" value="Add a New Product" />
+    </form>
+{% endif %}
+
+{% endblock %}

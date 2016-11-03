@@ -50,6 +50,10 @@ class Product(m.Model):
         print('The absolute URL is:', reverse(view_name, kwargs={'slug': self.slug}))
         return reverse(view_name, kwargs={'slug': self.slug})
 
+    def get_edit_url(self):
+        view_name = 'sellers:product_edit'
+        return reverse(view_name, kwargs={'pk': self.id})
+
     #  This will provide a download link for the product
     def get_download(self):
         view_name = 'products:download'

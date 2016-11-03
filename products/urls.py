@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.ProductListView.as_view(), name='list'),
-    url(r'^(?P<pk>\d+)/edit/$', views.ProductEditView.as_view(), name='edit'),
+    # url(r'^(?P<pk>\d+)/edit/$', views.ProductEditView.as_view(), name='edit'),
     url(r'^(?P<slug>[\w-]+)/edit/$', views.ProductEditView.as_view(), name='edit_slug'),
 
     url(r'^(?P<pk>\d+)/$', views.ProductDetailView.as_view(), name='detail'),
