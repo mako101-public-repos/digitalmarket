@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from products.models import Product
 from tags.models import Tag
 
+from sellers.mixins import SellerAccountMixin
+
 
 # These are product-specific mixins so we store them in a separate file
 class ProductManagerEditMixin(LoginRequiredMixin):
@@ -40,54 +42,72 @@ class ProductManagerDetailMixin(LoginRequiredMixin):
         return context
 
 
-class SimpleSearchMixin(object):
-    # Implement simple search
-    def get_queryset(self, *args, **kwargs):
-        qs = super(SimpleSearchMixin, self).get_queryset(**kwargs)
-        print(qs)
-        print(self.request.GET)
+def perform_search(request, qs):
+    # this will look for '?q=<search pattern>
+    #  and match it with titles or descriptions
+    # '|' is 'OR'; '&' is 'AND'
 
-        # this will look for '?q=<search pattern>
-        #  and match it with titles or descriptions
-        # '|' is 'OR'; '&' is 'AND'
+    # type of search
+    title_desc = request.GET.get('td')
+    price_from = request.GET.get('pf')
+    price_to = request.GET.get('pt')
 
-        # type of search
-        title_desc = self.request.GET.get('td')
-        price_from = self.request.GET.get('pf')
-        price_to = self.request.GET.get('pt')
+    # Perform search if any of the search parameters are received
+    if title_desc or price_from or price_to:
+        try:
+            # title and description
+            if title_desc:
+                matching_tags = Tag.active_tags.filter(
+                    title__icontains=title_desc)
 
-        # Perform search if any of the search parameters are received
-        if title_desc or price_from or price_to:
-            try:
-                # title and description
-                if title_desc:
-                    matching_tags = Tag.active_tags.filter(
-                        title__icontains=title_desc)
+                qs = qs.filter(
+                    Q(title__icontains=title_desc) |
+                    Q(description__icontains=title_desc) |
+                    Q(tag__in=matching_tags))
 
+            else:
+                if price_from and price_to:
                     qs = qs.filter(
-                        Q(title__icontains=title_desc) |
-                        Q(description__icontains=title_desc) |
-                        Q(tag__in=matching_tags))
+                        Q(price__gte=price_from) &
+                        Q(price__lte=price_to))
 
-                else:
-                    if price_from and price_to:
-                        qs = qs.filter(
-                            Q(price__gte=price_from) &
-                            Q(price__lte=price_to))
+                elif price_from:
+                    qs = qs.filter(price__gte=price_from)
 
-                    elif price_from:
-                        qs = qs.filter(price__gte=price_from)
+                elif price_to:
+                    qs = qs.filter(price__lte=price_to)
 
-                    elif price_to:
-                        qs = qs.filter(price__lte=price_to)
+        except ValidationError:
+            qs = qs.filter(Q(title__icontains=title_desc) |
+                           Q(description__icontains=title_desc))
 
-            except ValidationError:
-                qs = qs.filter(Q(title__icontains=title_desc) |
-                               Q(description__icontains=title_desc))
+        return qs.order_by('title').distinct()
 
-            return qs.order_by('title').distinct()
+    else:
+        # Otherwise return an ordered product list
+        print('Full product list')
+        return qs.order_by('slug')
 
-        else:
-            # Otherwise return an ordered product list
-            print('Full product list')
-            return qs.order_by('slug')
+
+class SearchMixin(object):
+    # Implement simple search
+    # This will search all products, and can be run by unauthorised user
+    def get_queryset(self, **kwargs):
+        qs = super(SearchMixin, self).get_queryset(**kwargs)
+        # print(qs)
+        # print(self.request.GET)
+        qs = perform_search(self.request, qs)
+        return qs
+
+
+class SellerSearchMixin(SellerAccountMixin, object):
+    # This will search only products owned by the seller, requires auth
+    def get_queryset(self, **kwargs):
+        seller = self.get_account()
+        qs = super(SellerSearchMixin, self).get_queryset(**kwargs)
+        qs = qs.filter(seller=seller)
+        # print(qs)
+        # print(self.request.GET)
+        qs = perform_search(self.request, qs)
+        return qs
+

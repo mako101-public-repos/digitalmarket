@@ -12,8 +12,9 @@ from products.forms import ProductAddForm, ProductModelForm
 from tags.models import Tag
 from analytics.models import TagView
 
+from sellers.mixins import *
 from digitalmarket.mixins import *
-from .mixins import *
+from products.mixins import *
 
 
 ################################### helper functions ###############################################
@@ -32,7 +33,7 @@ def process_tags(tags, item):
 
 
 ########################################## Class-Based Views :-) #########################################
-class ProductCreateView(LoginRequiredMixin, FormVarsMixin, CreateView):
+class ProductCreateView(SellerAccountMixin, FormVarsMixin, CreateView):
     model = Product
     form_class = ProductModelForm
     template_name = 'product_form.html'
@@ -44,12 +45,12 @@ class ProductCreateView(LoginRequiredMixin, FormVarsMixin, CreateView):
     reset_btn = 'Clear form'
 
     def form_valid(self, form):
-        user = self.request.user
-        form.instance.owner = user
+        seller = self.get_account()
+        form.instance.seller = seller
         valid_data = super(ProductCreateView, self).form_valid(form)  # form_valid() saves the instance
         # By this point the product has already been saved to the DB
         # so we can add ManyToMany values, e.g add user to managers
-        form.instance.managers.add(user)
+        # form.instance.managers.add(seller)
         tags = form.cleaned_data.get('tags')
         if tags:
             process_tags(tags, form.instance)
@@ -145,7 +146,7 @@ class ProductDownloadView(ProductManagerDetailMixin, MultiSlugMixin, DetailView)
             return HttpResponse('You are not authorized to access this download', status=403)
 
 
-class ProductListView(SimpleSearchMixin, ListView):
+class ProductListView(SearchMixin, ListView):
     model = Product
 
     # We will set things up to work with the default auto-generated template name:
@@ -154,6 +155,17 @@ class ProductListView(SimpleSearchMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ProductListView, self).get_context_data()
+        print(context)
+        context['coming_soon'] = Product.objects.get(slug='coming-soon')
+        # context['queryset'] = self.get_queryset()
+        return context
+
+
+class SellerProductListView(SellerSearchMixin, ListView):
+    model = Product
+
+    def get_context_data(self, **kwargs):
+        context = super(SellerProductListView, self).get_context_data()
         print(context)
         context['coming_soon'] = Product.objects.get(slug='coming-soon')
         # context['queryset'] = self.get_queryset()
@@ -255,5 +267,3 @@ def list_view(request):
     }
     return render(request, template, context)
 
-
-##

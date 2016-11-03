@@ -10,7 +10,7 @@ from sellers.views import SellerDashboard
 
 urlpatterns = [
     url(r'^$', DashboardView.as_view(), name='dashboard'),
-    url(r'^seller/', include('sellers.urls'), name='sellers'),
+    url(r'^seller/', include('sellers.urls', namespace='sellers')),
     url(r'^checkout/$', CheckoutAjaxView.as_view(), name='checkout'),
     url(r'^test$', CheckoutTestView.as_view(), name='test'),
     url(r'^admin/', admin.site.urls),
