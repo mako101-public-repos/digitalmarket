@@ -9,9 +9,9 @@ class DashboardView(View):
 
     def get(self, request, *args, **kwargs):
 
-        # tag_views = None
-        # products = None
-        # top_tags = None
+        tag_views = None
+        products = None
+        top_tags = None
         #
         try:
             # get 5 tags most frequented by the given user
@@ -24,6 +24,7 @@ class DashboardView(View):
         except:
             owned = None
 
+        print('tag views:', tag_views)
         if tag_views:
             top_tags = [x.tag for x in tag_views]
 
@@ -55,6 +56,7 @@ class DashboardView(View):
             'products': products,
             'top_tags': top_tags
         }
+        print(context)
 
         return render(request, 'dashboard/view.html', context)
 

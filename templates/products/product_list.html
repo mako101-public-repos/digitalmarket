@@ -57,10 +57,10 @@
 </ul>
 
 {# Allow authenticated users to create new products   #}
-{% if request.user.is_authenticated %}
-    <form action="{% url 'sellers:add' %}">
-        <input type="submit" value="Add a New Product" />
-    </form>
-{% endif %}
+{#{% if request.user.is_authenticated %}#}
+{#    <form action="{% url 'sellers:add' %}">#}
+{#        <input type="submit" value="Add a New Product" />#}
+{#    </form>#}
+{#{% endif %}#}
 
 {% endblock %}
