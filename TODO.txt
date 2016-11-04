@@ -1,4 +1,5 @@
-
+ - update seller add/edit product forms to allow uploading media
+    - may need to make image processing mixin?
  - allowed to edit is broken
  - play with property decorator, get_price method
  - clean up date for transactions

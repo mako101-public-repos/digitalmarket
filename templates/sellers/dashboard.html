@@ -25,6 +25,8 @@
     {% if products %}
         <div class="pull-right col-sidebar">
             <h2>Available Products</h2>
+            {% include 'sellers/product_add_snippet.html' %}
+            <br>
             {% include 'products/product_list_snippet.html' with product_list=products %}
         </div>
     {% endif %}
@@ -35,5 +37,8 @@
             {% include 'sellers/transaction_list_snippet.html' with transaction_list=transactions  time='since' %}
         </div>
     {% endif %}
+
+
+
 
 {% endblock %}

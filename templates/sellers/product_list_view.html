@@ -24,6 +24,9 @@
 
 <h1>Manage Products</h1>
 
+    {% include 'sellers/product_add_snippet.html' %}
+    <br>
+
 <table>
     {#  object_list is a  built-in variable for ListView class #}
     {% for instance in object_list %}
@@ -47,12 +50,5 @@
         <li>You have not registered any products yet</li>
     {% endfor %}
 </table>
-
-{# Allow authenticated users to create new products   #}
-{% if request.user.is_authenticated %}
-    <form action="{% url 'sellers:product_add' %}">
-        <input type="submit" value="Add a New Product" />
-    </form>
-{% endif %}
 
 {% endblock %}

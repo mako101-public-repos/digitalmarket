@@ -13,12 +13,13 @@ class ProductModelForm(forms.ModelForm):
     is_available = forms.ChoiceField(label='Is available for sale', widget=forms.RadioSelect,
                                      choices=AVAILABILITY_CHOICES, initial=True)
 
-    description = forms.CharField(label='', widget=forms.Textarea(
+    description = forms.CharField(label='', required=False, widget=forms.Textarea(
                                           attrs={
                                               'placeholder': 'Description ...',
                                               'cols': '30',
                                               'rows': '5',
                                           }))
+    media = forms.FileField(label='', required=False, widget=forms.ClearableFileInput())
 
     class Meta:
         model = Product
@@ -27,7 +28,8 @@ class ProductModelForm(forms.ModelForm):
             'description',
             'price',
             'sale_price',
-            'is_available'
+            'is_available',
+            'media'
         ]
 
         # Or widgets can be defined here, however cant pass all the params as easily here

@@ -18,14 +18,9 @@ class ProductManagerEditMixin(SellerAccountMixin, object):
     # c) user is one of the product managers
 
     def get_object(self, *args, **kwargs):
+        obj = super(ProductManagerEditMixin, self).get_object(*args, **kwargs)
         user = self.request.user
         seller = self.get_account()
-        obj = super(ProductManagerEditMixin, self).get_object(*args, **kwargs)
-        print('User is:', user, type(user))
-        print('object is', obj)
-        print('seller is', seller, type(seller))
-        print('User is seller?: ', seller == user)
-        # if obj.owner == user or user in obj.managers.all():
         if str(seller) == str(user):
             return obj
         else:

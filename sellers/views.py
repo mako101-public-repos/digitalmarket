@@ -1,16 +1,27 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import View
 from django.views.generic.list import ListView
+from django.views.generic.base import RedirectView
 from django.views.generic.edit import FormMixin
 
 from sellers.mixins import SellerAccountMixin
 
+from products.models import Product
 from sellers.forms import NewSellerForm
 from sellers.models import SellerAccount
 from billing.models import Transaction
 
 
-# Create your views here.
+# Example of RedirectVIew in views
+# https://docs.djangoproject.com/en/1.10/ref/class-based-views/base/#redirectview
+class SellerProductDetailRedirectView(RedirectView):
+    permanent = True
+
+    def get_redirect_url(self, *args, **kwargs):
+        obj = get_object_or_404(Product, pk=kwargs['pk'])
+        return obj.get_absolute_url()
+
+
 class SellerTransactionList(SellerAccountMixin, ListView):
     model = Transaction
     template_name = 'sellers/transaction_list_view.html'
@@ -47,7 +58,7 @@ class SellerDashboard(SellerAccountMixin, FormMixin, View):
             if account.active:
                 # get all seller's products and all transactions involving these products
                 products = self.get_products()
-                transactions = self.get_transactions()[:5]
+                transactions = self.get_transactions().order_by('-timestamp')[:5]
                 context['title'] = 'Seller Dashboard'
                 context['products'] = products
                 context['transactions'] = transactions

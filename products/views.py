@@ -161,6 +161,7 @@ class ProductListView(SearchMixin, ListView):
         return context
 
 
+# left this here as the search mixing uses the function from product mixins
 class SellerProductListView(SellerSearchMixin, ListView):
     model = Product
     template_name = 'sellers/product_list_view.html'
