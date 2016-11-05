@@ -1,3 +1,4 @@
+import datetime as d
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import View
 from django.views.generic.list import ListView
@@ -57,11 +58,17 @@ class SellerDashboard(SellerAccountMixin, FormMixin, View):
 
             if account.active:
                 # get all seller's products and all transactions involving these products
-                products = self.get_products()
-                transactions = self.get_transactions().order_by('-timestamp')[:5]
+                today = d.date.today()
+                today_min = d.datetime.combine(today, d.time.min)
+                today_max = d.datetime.combine(today, d.time.max)
+                print(today, today_min, today_max)
+                products = self.get_products()[:5]
+                transactions_today = self.get_transactions().filter(timestamp__range=(today_min, today_max))
+                recent_transactions = self.get_transactions().order_by('-timestamp').exclude(pk__in=transactions_today)[:5]
                 context['title'] = 'Seller Dashboard'
                 context['products'] = products
-                context['transactions'] = transactions
+                context['transactions_today'] = transactions_today
+                context['recent_transactions'] = recent_transactions
             # i.e. if not approved
             else:
                 context['title'] = 'Account Pending Approval'

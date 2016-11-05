@@ -11,7 +11,7 @@
  - add viktor to the default product owners/managers group
  - coming_soon context definition is repeated too many times
 
-
+ 
  ## have a look at devpost -> django + python
 
 # twitter

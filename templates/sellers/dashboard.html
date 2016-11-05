@@ -24,17 +24,33 @@
 
     {% if products %}
         <div class="pull-right col-sidebar">
-            <h2>Available Products</h2>
-            {% include 'sellers/product_add_snippet.html' %}
+            <h2>My Products</h2>
+            <strong><a href="{% url 'sellers:product_list' %}">Manage</a></strong> |
+            <strong><a href="{% url 'sellers:product_add' %}">Add Product</a></strong>
+            <br>
+            {# {% include 'sellers/product_add_snippet.html' %}#}
             <br>
             {% include 'products/product_list_snippet.html' with product_list=products %}
         </div>
     {% endif %}
 
-    {% if transactions %}
+
+    {# This should always exist as long as there is at least 1 transaction #}
+    {% if recent_transactions %}
         <div class="pull-left col-primary">
+
+            {% if transactions_today %}
+                <h2>Today's Sales</h2>
+                {% include 'sellers/transaction_list_snippet.html' with transaction_list=transactions_today time='detailed' %}
+                <br>
+            {% endif %}
+
             <h2>Recent Transactions</h2>
-            {% include 'sellers/transaction_list_snippet.html' with transaction_list=transactions  time='since' %}
+            {% include 'sellers/transaction_list_snippet.html' with transaction_list=recent_transactions  time='since' %}
+
+            <p>
+                <a href="{% url 'sellers:transactions' %}">Full Transaction History</a>
+            </p>
         </div>
     {% endif %}
 
