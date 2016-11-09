@@ -1,3 +1,6 @@
+import datetime as d
+from django.db.models import (Count, Min, Max, Sum, Avg)
+
 from digitalmarket.mixins import LoginRequiredMixin
 
 from billing.models import Transaction
@@ -24,8 +27,41 @@ class SellerAccountMixin(LoginRequiredMixin, object):
         products = Product.objects.filter(seller=account)
         return products
 
+    # get ALL transactions
     def get_transactions(self):
         products = self.get_products()
         transactions = Transaction.objects.filter(product__in=products)
         return transactions
 
+    def get_sales(self, transaction_set):
+        sales = transaction_set.aggregate(Sum('price'))
+        return sales['price__sum']
+
+    def get_transactions_today(self):
+        today = d.date.today()
+        today_min = d.datetime.combine(today, d.time.min)
+        today_max = d.datetime.combine(today, d.time.max)
+        print(today, today_min, today_max)
+        products = self.get_products()[:5]
+        transactions_today = self.get_transactions().filter(timestamp__range=(today_min, today_max))
+        return transactions_today
+
+    def get_recent_transactions(self, limit=10):
+        recent_transactions = self.get_transactions().order_by('-timestamp').exclude(
+            pk__in=self.get_transactions_today())[:limit]
+        return recent_transactions
+
+    def get_all_sales(self):
+        return self.get_sales(self.get_transactions())
+
+    def get_todays_sales(self):
+        return self.get_sales(self.get_transactions_today())
+
+    def get_sales_by_product(self):
+        sales_by_product = {}
+        for product in self.get_products():
+            transactions = Transaction.objects.filter(product=product)
+            total_sales = transactions.aggregate(Sum('price'))
+            total_sales = total_sales['price__sum']
+            sales_by_product[str(product)] = total_sales
+        return sales_by_product

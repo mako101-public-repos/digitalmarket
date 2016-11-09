@@ -110,6 +110,10 @@ $(document).ready(function(){
          {% else %}
             <div id="unavailable"><h3>Currently Unavailable</h3></div>
         {% endif  %}
+
+        {% if object.transaction_set.count > 0 %}
+            <p>Purchased <strong>{{ object.transaction_set.count }}</strong> times</p>
+        {% endif %}
         <br>
 
 
