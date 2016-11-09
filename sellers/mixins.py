@@ -42,7 +42,6 @@ class SellerAccountMixin(LoginRequiredMixin, object):
         today_min = d.datetime.combine(today, d.time.min)
         today_max = d.datetime.combine(today, d.time.max)
         print(today, today_min, today_max)
-        products = self.get_products()[:5]
         transactions_today = self.get_transactions().filter(timestamp__range=(today_min, today_max))
         return transactions_today
 
@@ -54,14 +53,17 @@ class SellerAccountMixin(LoginRequiredMixin, object):
     def get_all_sales(self):
         return self.get_sales(self.get_transactions())
 
-    def get_todays_sales(self):
+    def get_sales_today(self):
         return self.get_sales(self.get_transactions_today())
 
     def get_sales_by_product(self):
-        sales_by_product = {}
+        sales_by_product = []
         for product in self.get_products():
-            transactions = Transaction.objects.filter(product=product)
-            total_sales = transactions.aggregate(Sum('price'))
+            product_transactions = Transaction.objects.filter(product=product)
+            sales_count = product_transactions.count()
+            total_sales = product_transactions.aggregate(Sum('price'))
             total_sales = total_sales['price__sum']
-            sales_by_product[str(product)] = total_sales
+            if sales_count > 0:
+                product_stats = (product.title, sales_count, total_sales)
+                sales_by_product.append(product_stats)
         return sales_by_product

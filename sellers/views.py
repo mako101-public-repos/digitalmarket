@@ -30,6 +30,13 @@ class SellerTransactionList(SellerAccountMixin, ListView):
         transactions = self.get_transactions()
         return transactions
 
+    def get_context_data(self, **kwargs):
+        context = super(SellerTransactionList, self).get_context_data(**kwargs)
+        context['total_sales'] = self.get_all_sales()
+        context['sales_by_product'] = self.get_sales_by_product()
+        context['sales_by_product'] = self.get_sales_by_product()
+        return context
+
 
 class SellerDashboard(SellerAccountMixin, FormMixin, View):
     form_class = NewSellerForm
@@ -58,14 +65,19 @@ class SellerDashboard(SellerAccountMixin, FormMixin, View):
             if account.active:
                 # get all seller's products and all transactions involving these products
                 products = self.get_products()[:5]
-                recent_transactions = self.get_transactions().order_by('-timestamp').exclude(
-                    pk__in=self.get_transactions_today())[:5]
 
                 # rewrite this as a dictionary: context = {}
-                context['title'] = 'Seller Dashboard'
-                context['products'] = products
-                context['transactions_today'] = self.get_transactions_today()
-                context['recent_transactions'] = self.get_recent_transactions(5)
+                context = {
+                    'title': 'Seller Dashboard',
+                    'products': products,
+                    'transactions_today': self.get_transactions_today(),
+                    'sales_today': self.get_sales_today(),
+                    'recent_transactions': self.get_recent_transactions(5)
+                    }
+                # context['title'] = 'Seller Dashboard'
+                # context['products'] = products
+                # context['transactions_today'] = self.get_transactions_today()
+                # context['recent_transactions'] = self.get_recent_transactions(5)
             # i.e. if not approved
             else:
                 context['title'] = 'Account Pending Approval'

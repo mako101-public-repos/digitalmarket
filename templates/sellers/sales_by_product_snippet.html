@@ -1,0 +1,17 @@
+<table>
+    <thead>
+        <th>Product</th>
+        <th>Times Sold</th>
+        <th>Total Sales</th>
+    </thead>
+    <tbody>
+    {% for stat in sales_by_product %}
+    <tr>
+        {# This is super-pants :( #}
+        <td>{{ stat.0 }}</td>
+        <td>{{ stat.1 }}</td>
+        <td>${{ stat.2 }}</td>
+    </tr>
+    {%  endfor %}
+    </tbody>
+</table>

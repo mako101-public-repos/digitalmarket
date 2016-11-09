@@ -2,8 +2,22 @@
 
 {% block content %}
 
-<h1>Transaction History</h1>
+{#    <div class="pull-left col-primary">#}
 
-    {% include 'sellers/transaction_list_snippet.html' with transaction_list=object_list time='detailed' %}
+        <h1>Transaction History</h1>
 
+            {% include 'sellers/transaction_list_snippet.html' with transaction_list=object_list time='detailed' %}
+
+        <p><strong>Total Sales: ${{ total_sales }}</strong></p>
+
+{#    </div>#}
+
+{#    <div class="pull-right col-sidebar">#}
+        <h1>Sales by product</h1>
+
+            {% include 'sellers/sales_by_product_snippet.html' %}
+
+{#    </div>#}
+        <br><br>
+        <a href="{% url 'sellers:dashboard' %}">Back to Seller Dashboard</a>
 {% endblock %}

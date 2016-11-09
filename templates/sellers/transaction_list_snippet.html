@@ -10,7 +10,7 @@
     <tr>
         <td>{{ t.product }}</td>
         <td>{{ t.user }}</td>
-        <td>{{ t.price }}</td>
+        <td>${{ t.price }}</td>
         {% if time == 'since' %}
             <td>{{ t.timestamp|timesince }}</td>
         {% elif time == 'detailed' %}
