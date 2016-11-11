@@ -102,6 +102,14 @@ class MyProducts(m.Model):
         verbose_name = 'My Products'
         verbose_name_plural = 'My Products'
 
+    class ProductRating(m.Model):
+        user = m.ForeignKey(User)
+        product = m.ForeignKey(Product)
+        rating = m.IntegerField(null=True, blank=True)
+        verified = m.BooleanField(default=False)
+
+        def __str__(self):
+            return "{}-{}-{}".format(self.product, self.rating, self.user)
 
 ###################################### Signal Functions ######################################
 # this can be used to manipulate data before saving it to DB!

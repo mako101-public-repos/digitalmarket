@@ -2,7 +2,10 @@
 
 {% load get_thumbnail %}
 
+
 {% block content %}
+
+
     {{ block.super }}   {# we are importing the content #}
                         {# from the parent's block! #}
 
@@ -11,6 +14,26 @@
 $(document).ready(function(){
 
 {% block jquery %}
+    {# Save the rating value  #}
+    $(".rating input[type='radio']").click(function() {
+        var inputValue = $(this).val();
+        console.log(inputValue);
+        var request = $.ajax({
+            url: "",
+                        method: 'POST',
+                        data: {
+                            product_id: "{{ object.id }}",
+                            rating_value: inputValue
+                        }
+                    });
+        request.done(function () {
+            console.log('User {{ request.user }} rated {{ object.slug }}');
+
+        })
+    });
+
+
+    {# Carry out product purchase #}
     $('#purchase-btn').click(function (event) {
         event.preventDefault();
         var purchaseBtn = $(this)
@@ -154,12 +177,21 @@ $(document).ready(function(){
                 </form>
                 <br>
             </div>
-        {% else %}
-            <p><a id="purchase-btn" href="#">Purchase</a></p>
+
+        {% elif request.user.is_authenticated and object.media %}
+{#            <p><a id="purchase-btn" href="#">Purchase</a></p>#}
+            <p><a id="purchase-btn" class="btn btn-primary btn-lg" href="#" role="button">Purchase</a></p>
             <div id="dialog-confirm" title="Confirm Purchase" style="display:none">
                 <p>Your card on file will be charged</p>
                 <p>Please confirm this purchase</p>
             </div>
+
+            <br>
+            {% include 'products/product_rating_snippet.html' %}
+
+        {% else %}
+            <br>
+            <p>Please log in to purchase and rate products</p>
 
         {% endif %}
 

@@ -93,7 +93,7 @@ class ProductEditView(ProductManagerEditMixin, FormVarsMixin, MultiSlugMixin, Up
     # The rest is handled by ProductManagerEditMixin
 
 
-class ProductDetailView(ProductManagerDetailMixin, MultiSlugMixin, DetailView):
+class ProductDetailView(MultiSlugMixin, DetailView):
     model = Product
     # using product_detail.html template
     # Everything else managed by ProductManagerDetailMixin
