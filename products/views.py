@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, FileResponse
+from django.http import JsonResponse
 from mimetypes import guess_type
 
+from django.views.generic import View
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 
-from products.models import Product
+from products.models import Product, ProductRating
 from products.forms import ProductAddForm, ProductModelForm
 from tags.models import Tag
 from analytics.models import TagView
@@ -172,6 +173,46 @@ class SellerProductListView(SellerSearchMixin, ListView):
         context['coming_soon'] = Product.objects.get(slug='coming-soon')
         # context['queryset'] = self.get_queryset()
         return context
+
+
+class ProductRatingAjaxView(AjaxRequiredMixin, View):
+
+    def post(self, request, *args, **kwargs):
+
+        # This does nothing, as CSRF token is not passed for unauthed users!
+        if not request.user.is_authenticated():
+            return JsonResponse({}, status=401)
+        user = request.user
+        user_products = user.myproducts.products.all()
+        product_id = request.POST.get('product_id')
+        rating_value = request.POST.get('rating_value')
+        print('product_id:', product_id, 'rating_value:', rating_value)
+        exists = Product.objects.filter(id=product_id).exists()
+        if not exists:
+            return JsonResponse({}, status=404)
+
+        try:
+            product_object = Product.objects.get(id=product_id)
+        except:
+            product_object = Product.objects.filter(id=product_id).first()
+        print('Product is:', product_object)
+
+        try:
+            new_rating = ProductRating.objects.get_or_create(user=user, product_id=product_id)[0]
+
+        except ProductRating.MultipleObjectsReturned:
+            new_rating = ProductRating.objects.filter(user=user, product_id=product_id).first()
+
+        new_rating.rating = int(rating_value)
+        if product_object in user_products:
+            new_rating.verified = True
+        new_rating.save()
+
+        # Delete if not needed
+        data = {'success': True}
+
+        return JsonResponse(data)
+
 
 
 ############################# Function-based views ##################################################

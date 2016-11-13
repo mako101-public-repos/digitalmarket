@@ -37,3 +37,4 @@ class ProductAdmin(admin.ModelAdmin):
 
 admin.site.register(MyProducts)
 admin.site.register(Thumbnail)
+admin.site.register(ProductRating)

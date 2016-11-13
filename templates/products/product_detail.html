@@ -19,16 +19,22 @@ $(document).ready(function(){
         var inputValue = $(this).val();
         console.log(inputValue);
         var request = $.ajax({
-            url: "",
+            url: "{% url 'products:rating' %}",
                         method: 'POST',
                         data: {
                             product_id: "{{ object.id }}",
                             rating_value: inputValue
                         }
                     });
-        request.done(function () {
+        request.done(function (data) {
             console.log('User {{ request.user }} rated {{ object.slug }}');
+            console.log(data.success)
+        });
 
+        request.fail(function (errorThrown) {
+            alert('Your rating could not be saved!');
+            console.log(errorThrown);
+            console.log(errorThrown.responseText)
         })
     });
 
@@ -36,7 +42,7 @@ $(document).ready(function(){
     {# Carry out product purchase #}
     $('#purchase-btn').click(function (event) {
         event.preventDefault();
-        var purchaseBtn = $(this)
+        var purchaseBtn = $(this);
         $('#dialog-confirm').fadeIn('300');
         $('#dialog-confirm').dialog({
             resizable: false,
@@ -61,9 +67,9 @@ $(document).ready(function(){
                             console.log('Purchased {{ object.slug }}, product ID {{ object.id }}');
                             console.log(data.time);
 
-                            var removeButton = purchaseBtn.fadeOut(500)
+                            var removeButton = purchaseBtn.fadeOut(500);
                             var links = (
-                                    '<p>Purchase Successfull!<p><br>'
+                                    '<p>Purchase Successful!<p><br>'
                                     + '<p><a href="{{ object.get_download }}?preview=True">Full Size Preview </a></p>'
                                     + '<form action="{{ object.get_download }}">'
                                     + '<input type="submit" value="Download Media" />'
@@ -164,27 +170,31 @@ $(document).ready(function(){
 
     <div class="col-sidebar pull-right">
         {# Media has to exist #}
-        {# User has to be authenticated #}
+        {# User has to be authenticated to rate and purchase #}
         {# And has to have this product in his products to see the download/preview links #}
-        {% if object.media and request.user.is_authenticated and object in request.user.myproducts.products.all %}
 
-            <div id="download-links">
-                <p><a href="{{ object.get_download }}?preview=True">Full Size Preview </a></p>
+        {% if request.user.is_authenticated %}
+            {% if object.media and object in request.user.myproducts.products.all %}
 
-                {#  object.get_download here is the same as {% url 'products:download' object.id %} #}
-                <form action="{{ object.get_download }}">
-                    <input type="submit" value="Download Media" />
-                </form>
-                <br>
-            </div>
+                <div id="download-links">
+                    <p><a href="{{ object.get_download }}?preview=True">Full Size Preview </a></p>
 
-        {% elif request.user.is_authenticated and object.media %}
-{#            <p><a id="purchase-btn" href="#">Purchase</a></p>#}
-            <p><a id="purchase-btn" class="btn btn-primary btn-lg" href="#" role="button">Purchase</a></p>
-            <div id="dialog-confirm" title="Confirm Purchase" style="display:none">
-                <p>Your card on file will be charged</p>
-                <p>Please confirm this purchase</p>
-            </div>
+                    {#  object.get_download here is the same as {% url 'products:download' object.id %} #}
+                    <form action="{{ object.get_download }}">
+                        <input type="submit" value="Download Media" />
+                    </form>
+                    <br>
+                </div>
+
+            {% elif object.media %}
+    {#            <p><a id="purchase-btn" href="#">Purchase</a></p>#}
+                <p><a id="purchase-btn" class="btn btn-primary btn-lg" href="#" role="button">Purchase</a></p>
+                <div id="dialog-confirm" title="Confirm Purchase" style="display:none">
+                    <p>Your card on file will be charged</p>
+                    <p>Please confirm this purchase</p>
+                </div>
+
+            {% endif %}
 
             <br>
             {% include 'products/product_rating_snippet.html' %}
@@ -192,6 +202,7 @@ $(document).ready(function(){
         {% else %}
             <br>
             <p>Please log in to purchase and rate products</p>
+
 
         {% endif %}
 
