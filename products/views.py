@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
+from django.db.models import Avg, Count
 from mimetypes import guess_type
 
 from django.views.generic import View
@@ -102,11 +103,21 @@ class ProductDetailView(MultiSlugMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProductDetailView, self).get_context_data(**kwargs)
         context['coming_soon'] = Product.objects.get(slug='coming-soon')
-        obj = self.get_object()
-        tags = obj.tag_set.all()
-        if tags and self.request.user.is_authenticated():
-            for tag in tags:
-                tag_analytics_object = TagView.objects.add_count(self.request.user, tag)
+        # Current product
+        product_object = self.get_object()
+        tags = product_object.tag_set.all()
+        # Get statistics for previous ratings if any
+        rating_stats = product_object.productrating_set.aggregate(Avg('rating'), Count('rating'))
+        context['rating_stats'] = rating_stats
+
+        if self.request.user.is_authenticated():
+            if tags:
+                for tag in tags:
+                    tag_analytics_object = TagView.objects.add_count(self.request.user, tag)
+            user_rating = ProductRating.objects.filter(user=self.request.user, product=product_object)
+            # Get current user's rating if exists
+            if user_rating.exists():
+                context['my_rating'] = user_rating.first().rating
         return context
 
 
@@ -114,7 +125,7 @@ class ProductDownloadView(ProductManagerDetailMixin, MultiSlugMixin, DetailView)
     model = Product
 
     def get(self, request, *args, **kwargs):
-        obj = self.get_object()
+        product_object = self.get_object()
 
         # https://docs.djangoproject.com/en/1.10/ref/request-response/#fileresponse-objects
         # https://docs.python.org/3/library/functions.html#open
@@ -125,21 +136,21 @@ class ProductDownloadView(ProductManagerDetailMixin, MultiSlugMixin, DetailView)
         # file_wrapper = FileResponse(open(file_path, 'rb'))
 
         # Only allow users with the right permissions to download stuff
-        if obj in request.user.myproducts.products.all():
+        if product_object in request.user.myproducts.products.all():
 
             # Try to guess the MIME type of the download or just force download if unknown
-            guessed_type = guess_type(obj.media.name)
+            guessed_type = guess_type(product_object.media.name)
             mimetype = 'application/force-download'
             if guessed_type:
                 mimetype = guessed_type
-            response = HttpResponse(obj.media, content_type=mimetype)
+            response = HttpResponse(product_object.media, content_type=mimetype)
 
             # if the request contains 'preview', don't download the file, attempt preview
             # The product details page will have a separate link for this
             if 'preview' not in request.GET:
-                response['Content-Disposition'] = 'attachment; filename={}'.format(obj.media.name)
+                response['Content-Disposition'] = 'attachment; filename={}'.format(product_object.media.name)
 
-            response['X-SendFile'] = str(obj.media.name)
+            response['X-SendFile'] = str(product_object.media.name)
 
             print(response)
             return response

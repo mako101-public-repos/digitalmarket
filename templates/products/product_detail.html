@@ -10,11 +10,15 @@
                         {# from the parent's block! #}
 
 {# Purchase dialog #}
-<script>
+<script xmlns="http://www.w3.org/1999/html">
 $(document).ready(function(){
 
 {% block jquery %}
-    {# Save the rating value  #}
+
+    {# Display current rating   #}
+    $(".rating input[value='{{ my_rating }}']").attr("checked", "checked");
+
+    {# Save new rating value  #}
     $(".rating input[type='radio']").click(function() {
         var inputValue = $(this).val();
         console.log(inputValue);
@@ -141,10 +145,16 @@ $(document).ready(function(){
         {% endif  %}
 
         {% if object.transaction_set.count > 0 %}
+            <br>
             <p>Purchased <strong>{{ object.transaction_set.count }}</strong> times</p>
         {% endif %}
-        <br>
 
+        {% if rating_stats.rating__count > 0 %}
+            <p>Rated <span style="color:darkgreen; font-weight:bold;">
+                    *{{ rating_stats.rating__avg|floatformat }}*</span>
+                by <strong>{{ rating_stats.rating__count }}</strong> users</p>
+        {% endif %}
+        <br>
 
         {% if  object.thumbnail_set.count > 0 %}
             <h3>Product Thumbnails</h3>
@@ -201,12 +211,12 @@ $(document).ready(function(){
 
         {% else %}
             <br>
-            <p>Please log in to purchase and rate products</p>
-
+            <p>Please log in to purchase and rate</p>
 
         {% endif %}
 
     </div>
+
 
     <div class="clearfix"></div>
 
