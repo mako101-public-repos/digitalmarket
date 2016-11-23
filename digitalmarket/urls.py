@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from dashboard.views import DashboardView
 from checkout.views import CheckoutTestView, CheckoutAjaxView
-from sellers.views import SellerDashboard
+from products.views import UserLibraryView
 
 
 urlpatterns = [
@@ -17,7 +17,7 @@ urlpatterns = [
     # url(r'^$', RedirectView.as_view(url='products/')),
     url(r'^products/', include('products.urls', namespace='products')),
     url(r'^tags/', include('tags.urls', namespace='tags')),
-
+    url(r'^library/', UserLibraryView.as_view(), name='library'),
 
     ####################### Old function-based views, for reference #################################
     # url(r'^list/$', product_views.list_view, name='list_view'),

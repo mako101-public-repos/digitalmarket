@@ -1,8 +1,7 @@
- - ***  finish the seller mixin!!!
- - get sales by product: times/total revenue
- - rewrite seller view to hve context dict
- - pass all the new values
- - update seller dashboard and product list templates
+- User library:
+    - custom search without price
+    - table: product details, thumbnail/view, download
+    - only getting partial library
 
 
  - update seller add/edit product forms to allow uploading media

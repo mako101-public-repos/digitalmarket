@@ -3,7 +3,7 @@ from digitalmarket.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 
-from products.models import Product
+from products.models import *
 from tags.models import Tag
 
 from sellers.mixins import SellerAccountMixin
@@ -95,8 +95,17 @@ class SearchMixin(object):
     # This will search all products, and can be run by unauthorised user
     def get_queryset(self, **kwargs):
         qs = super(SearchMixin, self).get_queryset(**kwargs)
-        # print(qs)
-        # print(self.request.GET)
+        qs = perform_search(self.request, qs)
+        return qs
+
+
+class LibrarySearchMixin(LoginRequiredMixin, object):
+    # This will search all products, and can be run by unauthorised user
+    def get_queryset(self, **kwargs):
+        library = MyProducts.objects.get(user=self.request.user)
+        print(library)
+        qs = library.products.all()
+        print(qs)
         qs = perform_search(self.request, qs)
         return qs
 
@@ -107,8 +116,7 @@ class SellerSearchMixin(SellerAccountMixin, object):
         seller = self.get_account()
         qs = super(SellerSearchMixin, self).get_queryset(**kwargs)
         qs = qs.filter(seller=seller)
-        # print(qs)
-        # print(self.request.GET)
+
         qs = perform_search(self.request, qs)
         return qs
 

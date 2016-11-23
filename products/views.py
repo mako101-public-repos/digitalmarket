@@ -9,7 +9,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 
-from products.models import Product, ProductRating
+from products.models import Product, ProductRating, MyProducts
 from products.forms import ProductAddForm, ProductModelForm
 from tags.models import Tag
 from analytics.models import TagView
@@ -171,6 +171,19 @@ class ProductListView(SearchMixin, ListView):
         context['coming_soon'] = Product.objects.get(slug='coming-soon')
         # context['queryset'] = self.get_queryset()
         return context
+
+
+class UserLibraryView(LibrarySearchMixin, ListView):
+    model = MyProducts
+
+
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(ProductListView, self).get_context_data()
+    #     print(context)
+    #     context['coming_soon'] = Product.objects.get(slug='coming-soon')
+    #     # context['queryset'] = self.get_queryset()
+    #     return context
 
 
 # left this here as the search mixing uses the function from product mixins
