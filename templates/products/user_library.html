@@ -1,0 +1,50 @@
+{% extends 'base.html'%}
+{% load get_thumbnail %}
+
+
+{% block content %}
+
+<div id="search-box">
+
+    <h3>Search My Library</h3>
+
+    <form method="GET" action="">
+        <input type="text" name="q" value="{{ request.GET.q }}">
+        <input type="submit" value="Search"> <br>
+    </form>
+
+</div>
+
+<h1>My Products</h1>
+<table class="table table-bordered">
+    {#  object_list is a  built-in variable for ListView class #}
+    {% for instance in object_list %}
+        <tr>
+            <td>{{ instance.title }}</td>
+            <td>
+            {% if instance.media %}
+                    <a href="{% url 'products:detail_slug' instance.slug %}">
+                        <img src="{{ instance|get_thumbnail:'micro' }}" style="max-width: 100px"/></a>
+            {% else %}
+                    <a href="{% url 'products:detail_slug' instance.slug %}">
+                        <img src="{{ coming_soon|get_thumbnail:'micro' }}" style="max-width: 100px"/></a>
+            {% endif %}
+            </td>
+            <td><a href="{{ object.get_download }}?preview=True">Preview</a></td>
+        <td>
+            <form action="{{ object.get_download }}"><input type="submit" value="Download"/></form>
+        </td>
+        </tr>
+    {% empty %}
+        <li>You have not registered any products yet</li>
+    {% endfor %}
+</table>
+
+{# Allow authenticated users to create new products   #}
+{#{% if request.user.is_authenticated %}#}
+{#    <form action="{% url 'sellers:add' %}">#}
+{#        <input type="submit" value="Add a New Product" />#}
+{#    </form>#}
+{#{% endif %}#}
+
+{% endblock %}

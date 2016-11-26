@@ -158,45 +158,40 @@ class ProductDownloadView(ProductManagerDetailMixin, MultiSlugMixin, DetailView)
             return HttpResponse('You are not authorized to access this download', status=403)
 
 
-class ProductListView(SearchMixin, ListView):
+class ProductListView(SearchMixin, ComingSoonMixin, ListView):
     model = Product
 
     # We will set things up to work with the default auto-generated template name:
     # product_list.html
     # template_name = 'list_view.html' - not needed anymore
 
-    def get_context_data(self, **kwargs):
-        context = super(ProductListView, self).get_context_data()
-        print(context)
-        context['coming_soon'] = Product.objects.get(slug='coming-soon')
-        # context['queryset'] = self.get_queryset()
-        return context
 
-
-class UserLibraryView(LibrarySearchMixin, ListView):
+class UserLibraryView(LoginRequiredMixin, ComingSoonMixin, ListView):
     model = MyProducts
+    template_name = 'products/user_library.html'
 
+    def get_queryset(self, **kwargs):
 
+        search_query = self.request.GET.get('q')
+        # qs = super(UserLibraryView, self).get_queryset()
+        obj = MyProducts.objects.get_or_create(user=self.request.user)[0]
+        qs = obj.products.all()
+        if search_query:
+            matching_tags = Tag.active_tags.filter(
+                title__icontains=search_query)
 
-    # def get_context_data(self, **kwargs):
-    #     context = super(ProductListView, self).get_context_data()
-    #     print(context)
-    #     context['coming_soon'] = Product.objects.get(slug='coming-soon')
-    #     # context['queryset'] = self.get_queryset()
-    #     return context
+            qs = qs.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(tag__in=matching_tags))
+        print(qs)
+        return qs.distinct().order_by('title')
 
 
 # left this here as the search mixing uses the function from product mixins
-class SellerProductListView(SellerSearchMixin, ListView):
+class SellerProductListView(SellerSearchMixin, ComingSoonMixin, ListView):
     model = Product
     template_name = 'sellers/product_list_view.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(SellerProductListView, self).get_context_data()
-        print(context)
-        context['coming_soon'] = Product.objects.get(slug='coming-soon')
-        # context['queryset'] = self.get_queryset()
-        return context
 
 
 class ProductRatingAjaxView(AjaxRequiredMixin, View):
